@@ -31,7 +31,9 @@ func startETL() {
 	}
 
 	// while something....
-	processNextBatch()
+	for {
+		processNextBatch()
+	}
 }
 
 func processNextBatch() {
@@ -44,7 +46,7 @@ func processNextBatch() {
 	}
 
 	for _, message := range resp.Messages {
-		processSNSMessage(message)
+		go processSNSMessage(message)
 	}
 }
 
