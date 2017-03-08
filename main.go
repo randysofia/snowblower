@@ -4,6 +4,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/spf13/cobra"
 )
@@ -13,8 +14,11 @@ var config struct {
 	sqsURL        string
 	collectorPort string
 	awsregion     string
+	s3Path        string
 	awsSession    *session.Session
 }
+
+var preclogfile string
 
 func main() {
 
@@ -30,8 +34,9 @@ func main() {
 	config.snsTopic = os.Getenv("SNS_TOPIC")
 	config.sqsURL = os.Getenv("SQS_URL")
 	config.awsregion = os.Getenv("AWS_DEFAULT_REGION")
+	config.s3Path = os.Getenv("S3_PATH")
 
-	config.awsSession = session.Must(session.NewSession())
+	config.awsSession = session.Must(session.NewSession(&aws.Config{Region: aws.String(config.awsregion)}))
 
 	var collectorCmd = &cobra.Command{
 		Use:   "collect",
@@ -56,9 +61,22 @@ func main() {
 		},
 	}
 
+	var precipitateCmd = &cobra.Command{
+		Use:   "precipitate",
+		Short: "Run the cloudfront processor",
+		Run: func(cd *cobra.Command, args []string) {
+			if config.s3Path == "" {
+				panic("S3_PATH required")
+			}
+			startPrecipitate()
+		},
+	}
+
+	precipitateCmd.Flags().StringVarP(&preclogfile, "logfile", "l", "", "Single cloudfront log file to process")
 	var rootCmd = &cobra.Command{Use: "snowblower"}
 	rootCmd.AddCommand(collectorCmd)
 	rootCmd.AddCommand(etlCmd)
+	rootCmd.AddCommand(precipitateCmd)
 	rootCmd.Execute()
 
 }

@@ -15,7 +15,7 @@ var queue struct {
 }
 
 func startETL() {
-	queue.service = sqs.New(config.awsSession, &aws.Config{Region: aws.String(config.awsregion)})
+	queue.service = sqs.New(config.awsSession)
 
 	queue.params = &sqs.ReceiveMessageInput{
 		QueueUrl: aws.String(config.sqsURL),
@@ -97,7 +97,7 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	ue := Iglu{}
 	if len(e.UnstructuredEventEncoded) > 0 {
 		if err := json.Unmarshal(b, &ue); err != nil {
-			fmt.Printf("UE UNMARSHALL ERROR %s\n", err)
+			fmt.Printf("UE UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
 		b, _ = json.Marshal(ue)
@@ -105,10 +105,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	}
 	b, _ = base64x.URLEncoding.DecodeString(e.ContextsEncoded)
 	co := Iglu{}
-
 	if len(e.ContextsEncoded) > 0 {
 		if err := json.Unmarshal(b, &co); err != nil {
-			fmt.Printf("CO UNMARSHALL ERROR %s\n", err)
+			fmt.Printf("CO UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
 		b, _ = json.Marshal(co)

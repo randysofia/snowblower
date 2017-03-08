@@ -10,7 +10,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/google/uuid"
 )
@@ -238,7 +237,7 @@ func startCollector() {
 
 	collectorHandler := &collector{
 		publisher: &SNSPublisher{
-			service: sns.New(config.awsSession, &aws.Config{Region: aws.String(config.awsregion)}),
+			service: sns.New(config.awsSession),
 			topic:   config.snsTopic,
 		},
 	}
