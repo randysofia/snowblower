@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
@@ -115,7 +117,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	}
 	// pick up details from colletor payload
 	e.UserIPAddress = cp.IPAddress
-	e.CollectorTimestamp = string(cp.Timestamp)
+	e.ETLTimestamp = strconv.Itoa(int(time.Now().UnixNano() / 1000000))
+	e.ETLVersion = SBVersion
+	e.CollectorTimestamp = strconv.Itoa(int(cp.Timestamp))
 	e.CollectorVersion = cp.Collector
 	e.UserAgent = cp.UserAgent
 	// cp.RefererURI

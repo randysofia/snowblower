@@ -144,31 +144,13 @@ func (c *collector) serveGet(w http.ResponseWriter, request *http.Request,
 		return
 	}
 
-	collectorPayload := CollectorPayload{
-		Schema:        CollectorPayloadSchema,
-		IPAddress:     realRemoteAddr(request),
-		Timestamp:     time.Now().UnixNano() / 1000000,
-		Collector:     "Snowblower/0.0.1",
-		UserAgent:     request.UserAgent(),
-		Body:          string(bodyBytes),
-		Headers:       requestHeadersAsArray(request),
-		NetworkUserID: networkID,
-		//Encoding:      "",
-		//RefererURI:    "",
-		//Path:          "",
-		//QueryString:   "",
-		//ContentType:   "",
-		//Hostname:      "",
-	}
-	messageBytes, err := json.Marshal(collectorPayload)
-	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
-		return
-	}
-	message := string(messageBytes)
-	c.publisher.publish(message)
+	SNSerr := c.jsonInputToSNS(bodyBytes, realRemoteAddr(request), request.UserAgent(), requestHeadersAsArray(request), networkID)
 
-	w.WriteHeader(http.StatusOK)
+	if SNSerr == nil {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 // Handle post request
@@ -200,33 +182,48 @@ func (c *collector) servePost(
 	// decode trackerPayload.Data[] into proper datatypes
 
 	if len(trackerPayload.Data) > 0 {
-		collectorPayload := CollectorPayload{
-			Schema:        CollectorPayloadSchema,
-			IPAddress:     realRemoteAddr(request),
-			Timestamp:     time.Now().UnixNano() / 1000000,
-			Collector:     "Snowblower/0.0.1",
-			UserAgent:     request.UserAgent(),
-			Body:          string(bodyBytes),
-			Headers:       requestHeadersAsArray(request),
-			NetworkUserID: networkID,
-			//Encoding:      "",
-			//RefererURI:    "",
-			//Path:          "",
-			//QueryString:   "",
-			//ContentType:   "",
-			//Hostname:      "",
+
+		SNSerr := c.jsonInputToSNS(bodyBytes, realRemoteAddr(request), request.UserAgent(), requestHeadersAsArray(request), networkID)
+		if SNSerr == nil {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
 		}
-		messageBytes, err := json.Marshal(collectorPayload)
-		if err != nil {
-			log.Printf("Error marshalling JSON: %s", err)
-			return
-		}
-		message := string(messageBytes)
-		c.publisher.publish(message)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+}
 
+func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent string, Headers []string, networkID string) error {
+
+	collectorPayload := CollectorPayload{
+		Schema:        CollectorPayloadSchema,
+		IPAddress:     IPAddress,
+		Timestamp:     time.Now().UnixNano() / 1000000,
+		Collector:     SBVersion,
+		UserAgent:     UserAgent,
+		Body:          string(bodyBytes),
+		Headers:       Headers,
+		NetworkUserID: networkID,
+		//Encoding:      "",
+		//RefererURI:    "",
+		//Path:          "",
+		//QueryString:   "",
+		//ContentType:   "",
+		//Hostname:      "",
+	}
+	messageBytes, err := json.Marshal(collectorPayload)
+	if err != nil {
+		log.Printf("Error marshalling JSON: %s", err)
+		return err
+	}
+	message := string(messageBytes)
+	fmt.Println(string(messageBytes))
+	c.publisher.publish(message)
+
+	return nil
 }
 
 func startCollector() {
