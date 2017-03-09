@@ -22,10 +22,11 @@ One advantage to using SNS/SQS instead of Kinesis is that SQS scales transparent
 
 ## Running
 
-Snowblower has two commands:
+Snowblower has three commands:
 
 - `collect` Runs the collector, sending events to SNS or SQS, acting as the second stage in a Snowplow pipeline.
 - `etl` Pulls events from SQS, enriches them, and sends them into storage into Postgres or Redshift, acting as the third stage in a Snowplow pipeline.
+- `precipitate` Pulls events from Cloudfront logs recorded on S3 and sends them to SNS for future enrichment see: [Setting up the Cloudfront collector](https://github.com/snowplow/snowplow/wiki/Setting-up-the-Cloudfront-collector).
 
 
 ## Configuration
