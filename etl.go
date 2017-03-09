@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
@@ -15,7 +17,7 @@ var queue struct {
 }
 
 func startETL() {
-	queue.service = sqs.New(config.awsSession, &aws.Config{Region: aws.String(config.awsregion)})
+	queue.service = sqs.New(config.awsSession)
 
 	queue.params = &sqs.ReceiveMessageInput{
 		QueueUrl: aws.String(config.sqsURL),
@@ -31,7 +33,9 @@ func startETL() {
 	}
 
 	// while something....
-	processNextBatch()
+	for {
+		processNextBatch()
+	}
 }
 
 func processNextBatch() {
@@ -44,7 +48,7 @@ func processNextBatch() {
 	}
 
 	for _, message := range resp.Messages {
-		processSNSMessage(message)
+		go processSNSMessage(message)
 	}
 }
 
@@ -95,7 +99,7 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	ue := Iglu{}
 	if len(e.UnstructuredEventEncoded) > 0 {
 		if err := json.Unmarshal(b, &ue); err != nil {
-			fmt.Printf("UE UNMARSHALL ERROR %s\n", err)
+			fmt.Printf("UE UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
 		b, _ = json.Marshal(ue)
@@ -103,10 +107,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	}
 	b, _ = base64x.URLEncoding.DecodeString(e.ContextsEncoded)
 	co := Iglu{}
-
 	if len(e.ContextsEncoded) > 0 {
 		if err := json.Unmarshal(b, &co); err != nil {
-			fmt.Printf("CO UNMARSHALL ERROR %s\n", err)
+			fmt.Printf("CO UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
 		b, _ = json.Marshal(co)
@@ -114,7 +117,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	}
 	// pick up details from colletor payload
 	e.UserIPAddress = cp.IPAddress
-	e.CollectorTimestamp = string(cp.Timestamp)
+	e.ETLTimestamp = strconv.Itoa(int(time.Now().UnixNano() / 1000000))
+	e.ETLVersion = SBVersion
+	e.CollectorTimestamp = strconv.Itoa(int(cp.Timestamp))
 	e.CollectorVersion = cp.Collector
 	e.UserAgent = cp.UserAgent
 	// cp.RefererURI

@@ -2,6 +2,7 @@ package main
 
 // CollectorPayloadSchema ...
 const CollectorPayloadSchema = "iglu:com.snowplowanalytics.snowplow/CollectorPayload/thrift/1-0-0"
+const SBVersion = "Snowblower/0.0.1"
 
 // Iglu ...
 type Iglu struct {

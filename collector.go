@@ -10,7 +10,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/google/uuid"
 )
@@ -57,10 +56,99 @@ func (c *collector) serveGet(w http.ResponseWriter, request *http.Request,
 		return
 	}
 
-	/* The following works towards converting the query string to a typed
-	   json object to later be unmarshalled into the appropiate data structures */
+	bodyBytes, err := urlValuesToBodyBytes(request.URL.Query())
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	requestdata := request.URL.Query()
+	SNSerr := c.jsonInputToSNS(bodyBytes, realRemoteAddr(request), request.UserAgent(), requestHeadersAsArray(request), networkID)
+
+	if SNSerr == nil {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+// Handle post request
+func (c *collector) servePost(
+	w http.ResponseWriter,
+	request *http.Request,
+	networkID string,
+) {
+	bodyBytes, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(nil) // TODO make nice message
+		return
+	}
+
+	// this deserialization is used to check if we have any real data. It’s
+	// slightly wasteful, but it’s certainly not a deal breaker right now and
+	// the savings we get from not shipping empty events is huge
+
+	trackerPayload := TrackerPayload{}
+	if err := json.Unmarshal(bodyBytes, &trackerPayload); err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, "Bad schema")
+		return
+	}
+
+	// decode trackerPayload.Data[] into proper datatypes
+
+	if len(trackerPayload.Data) > 0 {
+
+		SNSerr := c.jsonInputToSNS(bodyBytes, realRemoteAddr(request), request.UserAgent(), requestHeadersAsArray(request), networkID)
+		if SNSerr == nil {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+}
+
+func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent string, Headers []string, networkID string) error {
+
+	collectorPayload := CollectorPayload{
+		Schema:        CollectorPayloadSchema,
+		IPAddress:     IPAddress,
+		Timestamp:     time.Now().UnixNano() / 1000000,
+		Collector:     SBVersion,
+		UserAgent:     UserAgent,
+		Body:          string(bodyBytes),
+		Headers:       Headers,
+		NetworkUserID: networkID,
+		//Encoding:      "",
+		//RefererURI:    "",
+		//Path:          "",
+		//QueryString:   "",
+		//ContentType:   "",
+		//Hostname:      "",
+	}
+	messageBytes, err := json.Marshal(collectorPayload)
+	if err != nil {
+		log.Printf("Error marshalling JSON: %s", err)
+		return err
+	}
+	message := string(messageBytes)
+	//fmt.Println(string(messageBytes))
+	c.publisher.publish(message)
+
+	return nil
+}
+
+/* The following works towards converting the query string to a typed
+json object to later be unmarshalled into the appropiate data structures */
+func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
+	var tmpreturn []byte
 	fixedrequestdata := make(map[string]string)
 
 	// Remove values from arrays in Map and prepare for string -> (bool|int)
@@ -88,10 +176,7 @@ func (c *collector) serveGet(w http.ResponseWriter, request *http.Request,
 	singleEvent := Event{}
 
 	if err := json.Unmarshal(jsonrequest, &singleEvent); err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(nil) // TODO make nice message
-		return
+		return tmpreturn, err
 	}
 
 	// Handle string -> bool conversion in json built from GET params
@@ -141,93 +226,9 @@ func (c *collector) serveGet(w http.ResponseWriter, request *http.Request,
 
 	bodyBytes, err := json.Marshal(trackerPayload)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return tmpreturn, err
 	}
-
-	collectorPayload := CollectorPayload{
-		Schema:        CollectorPayloadSchema,
-		IPAddress:     realRemoteAddr(request),
-		Timestamp:     time.Now().UnixNano() / 1000000,
-		Collector:     "Snowblower/0.0.1",
-		UserAgent:     request.UserAgent(),
-		Body:          string(bodyBytes),
-		Headers:       requestHeadersAsArray(request),
-		NetworkUserID: networkID,
-		//Encoding:      "",
-		//RefererURI:    "",
-		//Path:          "",
-		//QueryString:   "",
-		//ContentType:   "",
-		//Hostname:      "",
-	}
-	messageBytes, err := json.Marshal(collectorPayload)
-	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
-		return
-	}
-	message := string(messageBytes)
-	c.publisher.publish(message)
-
-	w.WriteHeader(http.StatusOK)
-}
-
-// Handle post request
-func (c *collector) servePost(
-	w http.ResponseWriter,
-	request *http.Request,
-	networkID string,
-) {
-	bodyBytes, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(nil) // TODO make nice message
-		return
-	}
-
-	// this deserialization is used to check if we have any real data. It’s
-	// slightly wasteful, but it’s certainly not a deal breaker right now and
-	// the savings we get from not shipping empty events is huge
-
-	trackerPayload := TrackerPayload{}
-	if err := json.Unmarshal(bodyBytes, &trackerPayload); err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, "Bad schema")
-		return
-	}
-
-	// decode trackerPayload.Data[] into proper datatypes
-
-	if len(trackerPayload.Data) > 0 {
-		collectorPayload := CollectorPayload{
-			Schema:        CollectorPayloadSchema,
-			IPAddress:     realRemoteAddr(request),
-			Timestamp:     time.Now().UnixNano() / 1000000,
-			Collector:     "Snowblower/0.0.1",
-			UserAgent:     request.UserAgent(),
-			Body:          string(bodyBytes),
-			Headers:       requestHeadersAsArray(request),
-			NetworkUserID: networkID,
-			//Encoding:      "",
-			//RefererURI:    "",
-			//Path:          "",
-			//QueryString:   "",
-			//ContentType:   "",
-			//Hostname:      "",
-		}
-		messageBytes, err := json.Marshal(collectorPayload)
-		if err != nil {
-			log.Printf("Error marshalling JSON: %s", err)
-			return
-		}
-		message := string(messageBytes)
-		c.publisher.publish(message)
-	}
-
-	w.WriteHeader(http.StatusOK)
-
+	return bodyBytes, nil
 }
 
 func startCollector() {
@@ -238,7 +239,7 @@ func startCollector() {
 
 	collectorHandler := &collector{
 		publisher: &SNSPublisher{
-			service: sns.New(config.awsSession, &aws.Config{Region: aws.String(config.awsregion)}),
+			service: sns.New(config.awsSession),
 			topic:   config.snsTopic,
 		},
 	}
