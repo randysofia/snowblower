@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"compress/gzip"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"net/url"
@@ -11,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/google/uuid"
 )
 
@@ -34,14 +37,11 @@ func GetS3(filepath string) (string, error) {
 
 	downloader := s3manager.NewDownloader(config.awsSession)
 	numBytes, err := downloader.Download(output, params)
-
+	fmt.Printf("Downloaded %s to %s, %d bytes\n", filepath, ofilename, numBytes)
 	if err != nil {
 		fmt.Println(err.Error())
 		return "", err
 	}
-
-	// Pretty-print the response data.
-	fmt.Println(numBytes)
 
 	return ofilename, nil
 }
@@ -83,9 +83,52 @@ func decompressgz(gzFilePath string, dstFilePath string) (int64, error) {
 	return written, nil
 }
 
+func processCSV(filename string) error {
+	fs, err := os.Open(filename)
+	defer fs.Close()
+	if err != nil {
+		return err
+	}
+	csvreader := csv.NewReader(bufio.NewReader(fs))
+	csvreader.Comma = '\t'
+	csvreader.FieldsPerRecord = 24
+	for {
+		record, err := csvreader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			continue
+		}
+		query, _ := url.QueryUnescape(record[11])
+		u, err := url.ParseQuery(query)
+		bodyBytes, err := urlValuesToBodyBytes(u)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		//fmt.Println(string(bodyBytes))
+		collectorHandler := &collector{
+			publisher: &SNSPublisher{
+				service: sns.New(config.awsSession),
+				topic:   config.snsTopic,
+			},
+		}
+		newuuid, _ := uuid.NewRandom()
+		networkID := newuuid.String()
+		useragent, _ := url.QueryUnescape(record[10])
+		var header []string
+		header = append(header, record[15])
+		collectorHandler.jsonInputToSNS(bodyBytes, record[4], useragent, header, networkID)
+
+	}
+	return nil
+}
+
 func startPrecipitate() {
 	gzfile, _ := GetS3(config.s3Path + "/" + preclogfile)
 	csvfile := strings.Replace(gzfile, "gz", "csv", 1)
 	decompressgz(gzfile, csvfile)
+	processCSV(csvfile)
+	os.Remove(csvfile)
 
 }

@@ -56,91 +56,10 @@ func (c *collector) serveGet(w http.ResponseWriter, request *http.Request,
 		return
 	}
 
-	/* The following works towards converting the query string to a typed
-	   json object to later be unmarshalled into the appropiate data structures */
-
-	requestdata := request.URL.Query()
-	fixedrequestdata := make(map[string]string)
-
-	// Remove values from arrays in Map and prepare for string -> (bool|int)
-	// conversions
-	for k, v := range requestdata {
-		if v[0] == "0" {
-			v[0] = "false"
-		} else if v[0] == "1" {
-			v[0] = "true"
-		}
-		switch k {
-		case "f_pdf", "f_fla", "f_java", "f_dir", "f_qt", "f_realp", "f_wma",
-			"f_gears", "pp_mix", "pp_max", "pp_miy", "pp_may":
-			k = "string_" + k
-		default:
-
-		}
-		fixedrequestdata[k] = v[0]
-	}
-
-	jsonrequest, _ := json.MarshalIndent(fixedrequestdata, "", "\t")
-	//fmt.Println(string(jsonrequest))
-
-	var eventPayload []Event
-	singleEvent := Event{}
-
-	if err := json.Unmarshal(jsonrequest, &singleEvent); err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(nil) // TODO make nice message
-		return
-	}
-
-	// Handle string -> bool conversion in json built from GET params
-	singleEvent.BrFeatPDF = singleEvent.TmpBrFeatPDF
-	singleEvent.TmpBrFeatPDF = false
-
-	singleEvent.BrFeatFl = singleEvent.TmpBrFeatFl
-	singleEvent.TmpBrFeatFl = false
-
-	singleEvent.BrFeatJava = singleEvent.TmpBrFeatJava
-	singleEvent.TmpBrFeatJava = false
-
-	singleEvent.BrFeatDir = singleEvent.TmpBrFeatDir
-	singleEvent.TmpBrFeatDir = false
-
-	singleEvent.BrFeatQT = singleEvent.TmpBrFeatQT
-	singleEvent.TmpBrFeatQT = false
-
-	singleEvent.BrFeatRealPlayer = singleEvent.TmpBrFeatRealPlayer
-	singleEvent.TmpBrFeatRealPlayer = false
-
-	singleEvent.BrFeatWinMedia = singleEvent.TmpBrFeatWinMedia
-	singleEvent.TmpBrFeatWinMedia = false
-
-	singleEvent.BrFeatGears = singleEvent.TmpBrFeatGears
-	singleEvent.TmpBrFeatGears = false
-
-	// Handle string - > int32 conversion in json built from GET params
-	singleEvent.PPXOffsetMin = singleEvent.TmpPPXOffsetMin
-	singleEvent.TmpPPXOffsetMin = 0
-
-	singleEvent.PPXOffsetMax = singleEvent.TmpPPXOffsetMax
-	singleEvent.TmpPPXOffsetMax = 0
-
-	singleEvent.PPYOffsetMin = singleEvent.TmpPPYOffsetMin
-	singleEvent.TmpPPYOffsetMin = 0
-
-	singleEvent.PPYOffsetMax = singleEvent.TmpPPYOffsetMax
-	singleEvent.TmpPPYOffsetMax = 0
-
-	eventPayload = append(eventPayload, singleEvent)
-
-	trackerPayload := TrackerPayload{
-		Schema: CollectorPayloadSchema,
-		Data:   eventPayload,
-	}
-
-	bodyBytes, err := json.Marshal(trackerPayload)
+	bodyBytes, err := urlValuesToBodyBytes(request.URL.Query())
 	if err != nil {
 		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -220,10 +139,96 @@ func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent
 		return err
 	}
 	message := string(messageBytes)
-	fmt.Println(string(messageBytes))
+	//fmt.Println(string(messageBytes))
 	c.publisher.publish(message)
 
 	return nil
+}
+
+/* The following works towards converting the query string to a typed
+json object to later be unmarshalled into the appropiate data structures */
+func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
+	var tmpreturn []byte
+	fixedrequestdata := make(map[string]string)
+
+	// Remove values from arrays in Map and prepare for string -> (bool|int)
+	// conversions
+	for k, v := range requestdata {
+		if v[0] == "0" {
+			v[0] = "false"
+		} else if v[0] == "1" {
+			v[0] = "true"
+		}
+		switch k {
+		case "f_pdf", "f_fla", "f_java", "f_dir", "f_qt", "f_realp", "f_wma",
+			"f_gears", "pp_mix", "pp_max", "pp_miy", "pp_may":
+			k = "string_" + k
+		default:
+
+		}
+		fixedrequestdata[k] = v[0]
+	}
+
+	jsonrequest, _ := json.MarshalIndent(fixedrequestdata, "", "\t")
+	//fmt.Println(string(jsonrequest))
+
+	var eventPayload []Event
+	singleEvent := Event{}
+
+	if err := json.Unmarshal(jsonrequest, &singleEvent); err != nil {
+		return tmpreturn, err
+	}
+
+	// Handle string -> bool conversion in json built from GET params
+	singleEvent.BrFeatPDF = singleEvent.TmpBrFeatPDF
+	singleEvent.TmpBrFeatPDF = false
+
+	singleEvent.BrFeatFl = singleEvent.TmpBrFeatFl
+	singleEvent.TmpBrFeatFl = false
+
+	singleEvent.BrFeatJava = singleEvent.TmpBrFeatJava
+	singleEvent.TmpBrFeatJava = false
+
+	singleEvent.BrFeatDir = singleEvent.TmpBrFeatDir
+	singleEvent.TmpBrFeatDir = false
+
+	singleEvent.BrFeatQT = singleEvent.TmpBrFeatQT
+	singleEvent.TmpBrFeatQT = false
+
+	singleEvent.BrFeatRealPlayer = singleEvent.TmpBrFeatRealPlayer
+	singleEvent.TmpBrFeatRealPlayer = false
+
+	singleEvent.BrFeatWinMedia = singleEvent.TmpBrFeatWinMedia
+	singleEvent.TmpBrFeatWinMedia = false
+
+	singleEvent.BrFeatGears = singleEvent.TmpBrFeatGears
+	singleEvent.TmpBrFeatGears = false
+
+	// Handle string - > int32 conversion in json built from GET params
+	singleEvent.PPXOffsetMin = singleEvent.TmpPPXOffsetMin
+	singleEvent.TmpPPXOffsetMin = 0
+
+	singleEvent.PPXOffsetMax = singleEvent.TmpPPXOffsetMax
+	singleEvent.TmpPPXOffsetMax = 0
+
+	singleEvent.PPYOffsetMin = singleEvent.TmpPPYOffsetMin
+	singleEvent.TmpPPYOffsetMin = 0
+
+	singleEvent.PPYOffsetMax = singleEvent.TmpPPYOffsetMax
+	singleEvent.TmpPPYOffsetMax = 0
+
+	eventPayload = append(eventPayload, singleEvent)
+
+	trackerPayload := TrackerPayload{
+		Schema: CollectorPayloadSchema,
+		Data:   eventPayload,
+	}
+
+	bodyBytes, err := json.Marshal(trackerPayload)
+	if err != nil {
+		return tmpreturn, err
+	}
+	return bodyBytes, nil
 }
 
 func startCollector() {
