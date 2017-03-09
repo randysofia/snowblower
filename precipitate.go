@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -118,17 +119,36 @@ func processCSV(filename string) error {
 		useragent, _ := url.QueryUnescape(record[10])
 		var header []string
 		header = append(header, record[15])
-		collectorHandler.jsonInputToSNS(bodyBytes, record[4], useragent, header, networkID)
+		collectorHandler.jsonInputToSNS(bodyBytes, record[4], strings.Replace(useragent, "%20", " ", -1), header, networkID)
 
 	}
 	return nil
 }
 
-func startPrecipitate() {
-	gzfile, _ := GetS3(config.s3Path + "/" + preclogfile)
+func orchestratePrecipitation(filename string) {
+	gzfile, _ := GetS3(config.s3Path + "/" + filename)
 	csvfile := strings.Replace(gzfile, "gz", "csv", 1)
 	decompressgz(gzfile, csvfile)
 	processCSV(csvfile)
 	os.Remove(csvfile)
+}
 
+func startPrecipitate() {
+	if preclogfile != "" {
+		orchestratePrecipitation(preclogfile)
+	} else {
+		urldata, _ := url.Parse(config.s3Path)
+
+		svc := s3.New(config.awsSession)
+		params := &s3.ListObjectsInput{
+			Bucket: aws.String(urldata.Host),
+		}
+		resp, _ := svc.ListObjects(params)
+		for _, key := range resp.Contents {
+			if filepath.Ext(*key.Key) == ".gz" {
+				filedata := strings.Split(*key.Key, "/")
+				orchestratePrecipitation(filedata[len(filedata)-1])
+			}
+		}
+	}
 }
