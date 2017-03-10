@@ -128,6 +128,8 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	// cp.Headers
 	e.NetworkUserID = cp.NetworkUserID
 
+	e.enrich()
+
 	o, _ := json.MarshalIndent(e, "", " ")
 	fmt.Printf("JSON: %s", o)
 

@@ -2,6 +2,8 @@ package main
 
 // CollectorPayloadSchema ...
 const CollectorPayloadSchema = "iglu:com.snowplowanalytics.snowplow/CollectorPayload/thrift/1-0-0"
+
+// SBVersion Version of collector / enricher
 const SBVersion = "Snowblower/0.0.1"
 
 // Iglu ...
@@ -167,7 +169,7 @@ type Event struct {
 	BrVersion        string `db:"br_version"`
 	BrType           string `db:"br_type"`
 	BrRenderer       string `db:"br_renderengine"`
-	BrLangauge       string `db:"br_lang"`
+	BrLangauge       string `json:"lang,omitempty" db:"br_lang"`
 	BrFeatPDF        bool   `json:"f_pdf,omitempty"  db:"br_features_pdf"`
 	BrFeatFl         bool   `json:"f_fla,omitempty" db:"br_features_flash"`
 	BrFeatJava       bool   `json:"f_java,omitempty" db:"br_features_java"`
@@ -176,6 +178,7 @@ type Event struct {
 	BrFeatRealPlayer bool   `json:"f_realp,omitempty" db:"br_features_realplayer"`
 	BrFeatWinMedia   bool   `json:"f_wma,omitempty" db:"br_features_windowsmedia"`
 	BrFeatGears      bool   `json:"f_gears,omitempty" db:"br_features_gears"`
+	BrCookies        bool   `json:"cookie,omitempty" db:"br_cookies"`
 
 	// Temporary fields to handle string conversion from GET -> JSON requests
 	TmpBrFeatPDF        bool `json:"string_f_pdf,string,omitempty"`
@@ -186,9 +189,9 @@ type Event struct {
 	TmpBrFeatRealPlayer bool `json:"string_f_realp,string,omitempty"`
 	TmpBrFeatWinMedia   bool `json:"string_f_wma,string,omitempty"`
 	TmpBrFeatGears      bool `json:"string_f_gears,string,omitempty"`
+	TmpBrCookies        bool `json:"string_cookie,string,omitempty"`
 
 	BrFeatSilver bool   `db:"br_features_silverlight"`
-	BrCookies    bool   `db:"br_cookies"`
 	BrColorDepth string `db:"br_colordepth"`
 	BrViewWidth  int32  `db:"br_viewwidth"`
 	BrViewHeight int32  `db:"br_viewheight"`
@@ -203,7 +206,7 @@ type Event struct {
 	DeviceType         string `db:"dvce_type"`
 	DeviceIsMobile     bool   `db:"dvce_ismobile"`
 	DeviceScreenWidth  int32  `db:"dvce_screenwidth"`
-	DeviceStringHeight int32  `db:"dvce_screenheight"`
+	DeviceScreenHeight int32  `db:"dvce_screenheight"`
 
 	// Document
 	DocCharset string `db:"doc_charset"`
@@ -250,7 +253,7 @@ type Event struct {
 	Namespace  string `json:"tna,omitempty"`
 	Timezone   string `json:"tz,omitempty"`
 	Resolution string `json:"res,omitempty"`
-	Language   string `json:"lang,omitempty"`
+	// Language   string `json:"lang,omitempty"`
 	ColorDepth string `json:"cd,omitempty"`
 	Viewport   string `json:"vp,omitempty"`
 }

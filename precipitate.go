@@ -18,6 +18,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// GetS3 Get the specific file from S3 and return the local path
 func GetS3(filepath string) (string, error) {
 	var ofilename string
 	urldata, _ := url.Parse(filepath)

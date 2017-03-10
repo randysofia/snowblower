@@ -161,7 +161,7 @@ func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
 		}
 		switch k {
 		case "f_pdf", "f_fla", "f_java", "f_dir", "f_qt", "f_realp", "f_wma",
-			"f_gears", "pp_mix", "pp_max", "pp_miy", "pp_may":
+			"f_gears", "pp_mix", "pp_max", "pp_miy", "pp_may", "cookie":
 			k = "string_" + k
 		default:
 
@@ -203,6 +203,9 @@ func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
 
 	singleEvent.BrFeatGears = singleEvent.TmpBrFeatGears
 	singleEvent.TmpBrFeatGears = false
+
+	singleEvent.BrCookies = singleEvent.TmpBrCookies
+	singleEvent.TmpBrCookies = false
 
 	// Handle string - > int32 conversion in json built from GET params
 	singleEvent.PPXOffsetMin = singleEvent.TmpPPXOffsetMin
