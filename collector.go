@@ -101,7 +101,6 @@ func (c *collector) servePost(
 	// decode trackerPayload.Data[] into proper datatypes
 
 	if len(trackerPayload.Data) > 0 {
-
 		SNSerr := c.jsonInputToSNS(bodyBytes, realRemoteAddr(request), request.UserAgent(), requestHeadersAsArray(request), networkID)
 		if SNSerr == nil {
 			w.WriteHeader(http.StatusOK)
@@ -120,7 +119,7 @@ func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent
 	collectorPayload := CollectorPayload{
 		Schema:        CollectorPayloadSchema,
 		IPAddress:     IPAddress,
-		Timestamp:     time.Now().UnixNano() / 1000000,
+		Timestamp:     time.Now().Unix(),
 		Collector:     SBVersion,
 		UserAgent:     UserAgent,
 		Body:          string(bodyBytes),

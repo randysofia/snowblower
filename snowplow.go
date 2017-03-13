@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 // CollectorPayloadSchema ...
 const CollectorPayloadSchema = "iglu:com.snowplowanalytics.snowplow/CollectorPayload/thrift/1-0-0"
 
@@ -42,211 +44,215 @@ type TrackerPayload struct {
 type Event struct {
 
 	// Application
-	AppID    string `json:"aid,omitempty" db:"app_id"`
-	Platform string `json:"p,omitempty" db:"platform"`
+	AppID    string `json:"aid,omitempty" bson:"app_id"`
+	Platform string `json:"p,omitempty" bson:"platform"`
 
 	// Date/Time
-	ETLTimestamp       string `db:"etl_tstamp"`
-	CollectorTimestamp string `'db:"collector_tstamp"`
-	DeviceTimestamp    string `json:"dtm,omitempty" db:"dvce_tstamp"`
+	ETLTimestamp       time.Time `json:"ETLTimestamp,string" bson:"etl_tstamp"`
+	CollectorTimestamp time.Time `json:"CollectorTimestamp,string" bson:"collector_tstamp"`
+	DeviceTimestamp    time.Time `json:"dvce_tstamp,string,omitempty" bson:"dvce_tstamp"`
+	TmpDeviceTimestamp string    `json:"dtm,omitempty" bson:"-"`
 
 	// Event
-	Event         string `json:"e,omitempty" db:"event"`
-	EventID       string `json:"eid,omitempty" db:"event_id"`
-	TransactionID string `json:"tid,omitempty" db:"txn_id"`
+	Event         string `json:"e,omitempty" bson:"event"`
+	EventID       string `json:"eid,omitempty" bson:"event_id"`
+	TransactionID string `json:"tid,omitempty" bson:"txn_id,omitempty"`
 
 	// Namespaceing and versioning
-	TrackerName      string `db:"name_tracker"`
-	TrackerVersion   string `json:"tv,omitempty" db:"v_tracker"`
-	CollectorVersion string `db:"v_collector"`
-	ETLVersion       string `db:"v_etl"`
+	TrackerName      string `bson:"name_tracker,omitempty"`
+	TrackerVersion   string `json:"tv,omitempty" bson:"v_tracker"`
+	CollectorVersion string `bson:"v_collector"`
+	ETLVersion       string `bson:"v_etl"`
 
 	// User and visit
-	UserID           string `json:"uid,omitempty" db:"user_id"`
-	UserIPAddress    string `json:"ip,omitempty" db:"user_ipaddress"`
-	UserFingerprint  string `db:"user_fingerprint"`
-	DomainUserID     string `json:"duid,omitempty" db:"domain_userid"`
-	DomainSessionIDX int16  `db:"domain_sessionidx"`
-	NetworkUserID    string `json:"tnuid,omitempty" db:"domain_userid"`
+	UserID           string `json:"uid,omitempty" bson:"user_id"`
+	UserIPAddress    string `json:"ip,omitempty" bson:"user_ipaddress"`
+	UserFingerprint  string `bson:"user_fingerprint,omitempty"`
+	DomainUserID     string `json:"duid,omitempty" bson:"domain_userid"`
+	DomainSessionIDX int16  `bson:"domain_sessionidx,omitempty"`
+	NetworkUserID    string `json:"tnuid,omitempty" bson:"network_userid"`
 
 	// Location
-	GeoCountry    string  `db:"geo_country"`
-	GeoRegion     string  `db:"geo_region"`
-	GeoCity       string  `db:"geo_city"`
-	GeoZipcode    string  `db:"geo_zipcode"`
-	GeoLatitude   float32 `db:"geo_latitude"`
-	GeoLongitude  float32 `db:"geo_longitude"`
-	GeoRegionName string  `db:"geo_region_name"`
+	GeoCountry    string  `bson:"geo_country,omitempty"`
+	GeoRegion     string  `bson:"geo_region,omitempty"`
+	GeoCity       string  `bson:"geo_city,omitempty"`
+	GeoZipcode    string  `bson:"geo_zipcode,omitempty"`
+	GeoLatitude   float32 `bson:"geo_latitude,omitempty"`
+	GeoLongitude  float32 `bson:"geo_longitude,omitempty"`
+	GeoRegionName string  `bson:"geo_region_name,omitempty"`
 
 	// IP Lookups
-	IPISP          string `db:"ip_isp"`
-	IPOrganization string `db:"ip_organization"`
-	IPDomain       string `db:"ip_domain"`
-	IPNetspeed     string `db:"ip_netspeed"`
+	IPISP          string `bson:"ip_isp,omitempty"`
+	IPOrganization string `bson:"ip_organization,omitempty"`
+	IPDomain       string `bson:"ip_domain,omitempty"`
+	IPNetspeed     string `bson:"ip_netspeed,omitempty"`
 
 	// Page
-	PageURL      string `json:"url,omitempty" db:"page_url"`
-	PageTitle    string `json:"page,omitempty" db:"page_title"`
-	PageReferrer string `json:"refr,omitempty" db:"page_referrer"`
+	PageURL      string `json:"url,omitempty" bson:"page_url"`
+	PageTitle    string `json:"page,omitempty" bson:"page_title,omitempty"`
+	PageReferrer string `json:"refr,omitempty" bson:"page_referrer,omitempty"`
 
 	// Page URL Components
-	PageURLScheme   string `db:"page_urlscheme"`
-	PageURLHost     string `db:"page_urlhost"`
-	PageURLPort     int32  `db:"page_urlport"`
-	PageURLPath     string `db:"page_urlpath"`
-	PageURLQuery    string `db:"page_urlquery"`
-	PageURLFragment string `db:"page_urlfragment"`
+	PageURLScheme   string `bson:"page_urlscheme"`
+	PageURLHost     string `bson:"page_urlhost"`
+	PageURLPort     int32  `bson:"page_urlport"`
+	PageURLPath     string `bson:"page_urlpath"`
+	PageURLQuery    string `bson:"page_urlquery,omitempty"`
+	PageURLFragment string `bson:"page_urlfragment,omitempty"`
 
 	// Referrer URL Components
-	ReferrerURLScheme   string `db:"refr_urlscheme"`
-	ReferrerURLHost     string `db:"refr_urlhost"`
-	ReferrerURLPort     int32  `db:"refr_urlport"`
-	ReferrerURLPath     string `db:"refr_urlpath"`
-	ReferrerURLQuery    string `db:"refr_urlquery"`
-	ReferrerURLFragment string `db:"refr_urlfragment"`
+	ReferrerURLScheme   string `bson:"refr_urlscheme,omitempty"`
+	ReferrerURLHost     string `bson:"refr_urlhost,omitempty"`
+	ReferrerURLPort     int32  `bson:"refr_urlport,omitempty"`
+	ReferrerURLPath     string `bson:"refr_urlpath,omitempty"`
+	ReferrerURLQuery    string `bson:"refr_urlquery,omitempty"`
+	ReferrerURLFragment string `bson:"refr_urlfragment,omitempty"`
 
 	// Referrer Details
-	ReferrerMedium string `db:"refr_medium"`
-	ReferrerSource string `db:"refr_source"`
-	ReferrerTerm   string `db:"refr_term"`
+	ReferrerMedium string `bson:"refr_medium,omitempty"`
+	ReferrerSource string `bson:"refr_source,omitempty"`
+	ReferrerTerm   string `bson:"refr_term,omitempty"`
 
 	// Marketing
-	MarketingMedium   string `db:"mkt_medium"`
-	MarketingSource   string `db:"mkt_source"`
-	MarketingTerm     string `db:"mkt_term"`
-	MarketingContent  string `db:"mkt_content"`
-	MarketingCampaign string `db:"mkt_campaign"`
+	MarketingMedium   string `bson:"mkt_medium,omitempty"`
+	MarketingSource   string `bson:"mkt_source,omitempty"`
+	MarketingTerm     string `bson:"mkt_term,omitempty"`
+	MarketingContent  string `bson:"mkt_content,omitempty"`
+	MarketingCampaign string `bson:"mkt_campaign,omitempty"`
 
 	// Custom Contexts
-	Contexts        string `json:"co,omitempty" db:"contexts"`
-	ContextsEncoded string `json:"cx,omitempty"`
+	Contexts        map[string]interface{} `json:"-" bson:"contexts,omitempty"`
+	TmpContexts     string                 `json:"co,omitempty" bson:"-"`
+	ContextsEncoded string                 `json:"cx,omitempty" bson:"contexts_enc,omitempty"`
 
 	// Custom Structured Event
-	StructuredEventCategory string `json:"se_ca,omitempty" db:"se_category"`
-	StructuredEventAction   string `json:"se_ac,omitempty" db:"se_action"`
-	StructuredEventLabel    string `json:"se_la,omitempty" db:"se_label"`
-	StructuredEventProperty string `json:"se_pr,omitempty" db:"se_property"`
-	StructuredEventValue    string `json:"se_va,omitempty" db:"se_value"`
+	StructuredEventCategory string `json:"se_ca,omitempty" bson:"se_category,omitempty"`
+	StructuredEventAction   string `json:"se_ac,omitempty" bson:"se_action,omitempty"`
+	StructuredEventLabel    string `json:"se_la,omitempty" bson:"se_label,omitempty"`
+	StructuredEventProperty string `json:"se_pr,omitempty" bson:"se_property,omitempty"`
+	StructuredEventValue    string `json:"se_va,omitempty" bson:"se_value,omitempty"`
 
 	// Unstructured Event
-	UnstructuredEvent        string `json:"ue_pr,omitempty" db:"unstruct_event"`
-	UnstructuredEventEncoded string `json:"ue_px,omitempty"`
+	UnstructuredEvent    map[string]interface{} `json:"-" bson:"unstruct_event,omitempty"`
+	TmpUnstructuredEvent string                 `json:"ue_pr,omitempty" bson:"-"`
+
+	UnstructuredEventEncoded string `json:"ue_px,omitempty,omitempty" bson:"unstruct_event_enc,omitempty"`
 
 	// Ecommerce
-	TransactionOrderID      string `json:"tr_id,omitempty" db:"tr_orderid"`
-	TransactionAffiliation  string `json:"tr_af,omitempty" db:"tr_affiliation"`
-	TransactionTotal        string `json:"tr_tt,omitempty" db:"tr_total"`
-	TransactionTax          string `json:"tr_tx,omitempty" db:"tr_tax"`
-	TransactionShipping     string `json:"tr_sh,omitempty" db:"tr_shipping"`
-	TransactionCity         string `json:"tr_ci,omitempty" db:"tr_city"`
-	TransactionState        string `json:"tr_st,omitempty" db:"tr_state"`
-	TransactionCountry      string `json:"tr_co,omitempty" db:"tr_country"`
-	TransactionItemID       string `json:"ti_id,omitempty" db:"ti_orderid"`
-	TransactionItemSKU      string `json:"ti_sk,omitempty" db:"ti_sku"`
-	TransactionItemName     string `json:"ti_nm,omitempty" db:"ti_name"`
-	TransactionItemCategory string `json:"ti_ca,omitempty" db:"ti_category"`
-	TransactionItemPrice    string `json:"ti_pr,omitempty" db:"ti_price"`
-	TransactionItemQuantity string `json:"ti_qu,omitempty" db:"ti_quantity"`
+	TransactionOrderID      string `json:"tr_id,omitempty" bson:"tr_orderid,omitempty"`
+	TransactionAffiliation  string `json:"tr_af,omitempty" bson:"tr_affiliation,omitempty"`
+	TransactionTotal        string `json:"tr_tt,omitempty" bson:"tr_total,omitempty"`
+	TransactionTax          string `json:"tr_tx,omitempty" bson:"tr_tax,omitempty"`
+	TransactionShipping     string `json:"tr_sh,omitempty" bson:"tr_shipping,omitempty"`
+	TransactionCity         string `json:"tr_ci,omitempty" bson:"tr_city,omitempty"`
+	TransactionState        string `json:"tr_st,omitempty" bson:"tr_state,omitempty"`
+	TransactionCountry      string `json:"tr_co,omitempty" bson:"tr_country,omitempty"`
+	TransactionItemID       string `json:"ti_id,omitempty" bson:"ti_orderid,omitempty"`
+	TransactionItemSKU      string `json:"ti_sk,omitempty" bson:"ti_sku,omitempty"`
+	TransactionItemName     string `json:"ti_nm,omitempty" bson:"ti_name,omitempty"`
+	TransactionItemCategory string `json:"ti_ca,omitempty" bson:"ti_category,omitempty"`
+	TransactionItemPrice    string `json:"ti_pr,omitempty" bson:"ti_price,omitempty"`
+	TransactionItemQuantity string `json:"ti_qu,omitempty" bson:"ti_quantity,omitempty"`
 
 	// Page Ping
-	PPXOffsetMin int32 `json:"pp_mix,omitempty" db:"pp_xoffset_min"`
-	PPXOffsetMax int32 `json:"pp_max,omitempty" db:"pp_xoffset_max"`
-	PPYOffsetMin int32 `json:"pp_miy,omitempty" db:"pp_yoffset_min"`
-	PPYOffsetMax int32 `json:"pp_may,omitempty"db:"pp_yoffset_max"`
+	PPXOffsetMin int32 `json:"pp_mix,omitempty" bson:"pp_xoffset_min,omitempty"`
+	PPXOffsetMax int32 `json:"pp_max,omitempty" bson:"pp_xoffset_max,omitempty"`
+	PPYOffsetMin int32 `json:"pp_miy,omitempty" bson:"pp_yoffset_min,omitempty"`
+	PPYOffsetMax int32 `json:"pp_may,omitempty"bson:"pp_yoffset_max,omitempty"`
 
 	// Temporary fields to handle string conversion from GET -> JSON requests
-	TmpPPXOffsetMin int32 `json:"string_pp_mix,string,omitempty" db:"pp_xoffset_min"`
-	TmpPPXOffsetMax int32 `json:"string_pp_max,string,omitempty" db:"pp_xoffset_max"`
-	TmpPPYOffsetMin int32 `json:"string_pp_miy,string,omitempty" db:"pp_yoffset_min"`
-	TmpPPYOffsetMax int32 `json:"string_pp_may,string,omitempty"db:"pp_yoffset_max"`
+	TmpPPXOffsetMin int32 `json:"string_pp_mix,string,omitempty" bson:"-"`
+	TmpPPXOffsetMax int32 `json:"string_pp_max,string,omitempty" bson:"-"`
+	TmpPPYOffsetMin int32 `json:"string_pp_miy,string,omitempty" bson:"-"`
+	TmpPPYOffsetMax int32 `json:"string_pp_may,string,omitempty" bson:"-"`
 
 	// User Agent
-	UserAgent string `json:"ua,omitempty" db:"useragent"`
+	UserAgent string `json:"ua,omitempty" bson:"useragent"`
 
 	// Browser
-	BrName           string `db:"br_name"`
-	BrFamily         string `db:"br_family"`
-	BrVersion        string `db:"br_version"`
-	BrType           string `db:"br_type"`
-	BrRenderer       string `db:"br_renderengine"`
-	BrLangauge       string `json:"lang,omitempty" db:"br_lang"`
-	BrFeatPDF        bool   `json:"f_pdf,omitempty"  db:"br_features_pdf"`
-	BrFeatFl         bool   `json:"f_fla,omitempty" db:"br_features_flash"`
-	BrFeatJava       bool   `json:"f_java,omitempty" db:"br_features_java"`
-	BrFeatDir        bool   `json:"f_dir,omitempty" db:"br_features_director"`
-	BrFeatQT         bool   `json:"f_qt,omitempty" db:"br_features_quicktime"`
-	BrFeatRealPlayer bool   `json:"f_realp,omitempty" db:"br_features_realplayer"`
-	BrFeatWinMedia   bool   `json:"f_wma,omitempty" db:"br_features_windowsmedia"`
-	BrFeatGears      bool   `json:"f_gears,omitempty" db:"br_features_gears"`
-	BrCookies        bool   `json:"cookie,omitempty" db:"br_cookies"`
+	BrName           string `bson:"br_name"`
+	BrFamily         string `bson:"br_family"`
+	BrVersion        string `bson:"br_version"`
+	BrType           string `bson:"br_type,omitempty"`
+	BrRenderer       string `bson:"br_renderengine,omitempty"`
+	BrLangauge       string `json:"lang,omitempty" bson:"br_lang"`
+	BrFeatPDF        bool   `json:"f_pdf,omitempty"  bson:"br_features_pdf,omitempty"`
+	BrFeatFl         bool   `json:"f_fla,omitempty" bson:"br_features_flash,omitempty"`
+	BrFeatJava       bool   `json:"f_java,omitempty" bson:"br_features_java,omitempty"`
+	BrFeatDir        bool   `json:"f_dir,omitempty" bson:"br_features_director,omitempty"`
+	BrFeatQT         bool   `json:"f_qt,omitempty" bson:"br_features_quicktime,omitempty"`
+	BrFeatRealPlayer bool   `json:"f_realp,omitempty" bson:"br_features_realplayer,omitempty"`
+	BrFeatWinMedia   bool   `json:"f_wma,omitempty" bson:"br_features_windowsmedia,omitempty"`
+	BrFeatGears      bool   `json:"f_gears,omitempty" bson:"br_features_gears,omitempty"`
+	BrCookies        bool   `json:"cookie,omitempty" bson:"br_cookies,omitempty"`
 
 	// Temporary fields to handle string conversion from GET -> JSON requests
-	TmpBrFeatPDF        bool `json:"string_f_pdf,string,omitempty"`
-	TmpBrFeatFl         bool `json:"string_f_fla,string,omitempty"`
-	TmpBrFeatJava       bool `json:"string_f_java,string,omitempty"`
-	TmpBrFeatDir        bool `json:"string_f_dir,string,omitempty"`
-	TmpBrFeatQT         bool `json:"string_f_qt,string,omitempty"`
-	TmpBrFeatRealPlayer bool `json:"string_f_realp,string,omitempty"`
-	TmpBrFeatWinMedia   bool `json:"string_f_wma,string,omitempty"`
-	TmpBrFeatGears      bool `json:"string_f_gears,string,omitempty"`
-	TmpBrCookies        bool `json:"string_cookie,string,omitempty"`
+	TmpBrFeatPDF        bool `json:"string_f_pdf,string,omitempty" bson:"-"`
+	TmpBrFeatFl         bool `json:"string_f_fla,string,omitempty" bson:"-"`
+	TmpBrFeatJava       bool `json:"string_f_java,string,omitempty" bson:"-"`
+	TmpBrFeatDir        bool `json:"string_f_dir,string,omitempty" bson:"-"`
+	TmpBrFeatQT         bool `json:"string_f_qt,string,omitempty" bson:"-"`
+	TmpBrFeatRealPlayer bool `json:"string_f_realp,string,omitempty" bson:"-"`
+	TmpBrFeatWinMedia   bool `json:"string_f_wma,string,omitempty" bson:"-"`
+	TmpBrFeatGears      bool `json:"string_f_gears,string,omitempty" bson:"-"`
+	TmpBrCookies        bool `json:"string_cookie,string,omitempty" bson:"-"`
 
-	BrFeatSilver bool   `db:"br_features_silverlight"`
-	BrColorDepth string `db:"br_colordepth"`
-	BrViewWidth  int32  `db:"br_viewwidth"`
-	BrViewHeight int32  `db:"br_viewheight"`
+	BrFeatSilver bool   `bson:"br_features_silverlight"`
+	BrColorDepth string `bson:"br_colordepth,omitempty"`
+	BrViewWidth  int32  `bson:"br_viewwidth"`
+	BrViewHeight int32  `bson:"br_viewheight"`
 
 	// Operating System
-	OSName         string `db:"os_name"`
-	OSFamily       string `db:"os_family"`
-	OSManufacturer string `db:"os_manufacturer"`
-	OSTimeZone     string `db:"os_timezone"`
+	OSName         string `bson:"os_name"`
+	OSFamily       string `bson:"os_family"`
+	OSManufacturer string `bson:"os_manufacturer"`
+	OSTimeZone     string `bson:"os_timezone,omitempty"`
 
 	// Device/Hardware
-	DeviceType         string `db:"dvce_type"`
-	DeviceIsMobile     bool   `db:"dvce_ismobile"`
-	DeviceScreenWidth  int32  `db:"dvce_screenwidth"`
-	DeviceScreenHeight int32  `db:"dvce_screenheight"`
+	DeviceType         string `bson:"dvce_type"`
+	DeviceIsMobile     bool   `bson:"dvce_ismobile"`
+	DeviceScreenWidth  int32  `bson:"dvce_screenwidth"`
+	DeviceScreenHeight int32  `bson:"dvce_screenheight"`
 
 	// Document
-	DocCharset string `db:"doc_charset"`
-	DocWidth   int32  `db:"doc_width"`
-	DocHeight  int32  `db:"doc_height"`
+	DocCharset string `bson:"doc_charset,omitempty"`
+	DocWidth   int32  `bson:"doc_width,omitempty"`
+	DocHeight  int32  `bson:"doc_height,omitempty"`
 
 	// Currency
-	TransactionCurrency     string `json:"tr_cu,omitempty" db:"tr_currency"`
-	TransactionTotalBase    string `db:"tr_total_base"`
-	TransactionTaxBase      string `db:"tr_tax_base"`
-	TransactionShippingBase string `db:"tr_shipping_base"`
-	TransactionItemCurrency string `json:"ti_cu,omitempty" db:"ti_currency"`
-	TransactionItemBase     string `db:"ti_price_base"`
-	BaseCurrency            string `db:"base_currency"`
+	TransactionCurrency     string `json:"tr_cu,omitempty" bson:"tr_currency,omitempty"`
+	TransactionTotalBase    string `bson:"tr_total_base,omitempty"`
+	TransactionTaxBase      string `bson:"tr_tax_base,omitempty"`
+	TransactionShippingBase string `bson:"tr_shipping_base,omitempty"`
+	TransactionItemCurrency string `json:"ti_cu,omitempty" bson:"ti_currency,omitempty"`
+	TransactionItemBase     string `bson:"ti_price_base,omitempty"`
+	BaseCurrency            string `bson:"base_currency,omitempty"`
 
 	// Geolocation
-	GeoTimeZone string `db:"geo_timezone"`
+	GeoTimeZone string `bson:"geo_timezone"`
 
 	// Click ID
-	MarketClickID string `db:"mkt_clickid"`
-	MarketNetwork string `db:"mkt_network"`
+	MarketClickID string `bson:"mkt_clickid,omitempty"`
+	MarketNetwork string `bson:"mkt_network,omitempty"`
 
 	// ETL Tags
-	ETLTags string `db:"etl_tags"`
+	ETLTags string `bson:"etl_tags,omitempty"`
 
 	// Time event was sent
-	DeviceSentTimestamp string `db:"dvce_sent_tstamp"`
+	DeviceSentTimestamp string `bson:"dvce_sent_tstamp,omitempty"`
 
 	// Referer
-	ReferrerDomainUserID    string `db:"refr_domain_userid"`
-	ReferrerDeviceTimestamp string `db:"refr_dvce_timestamp"`
+	ReferrerDomainUserID    string `bson:"refr_domain_userid,omitempty"`
+	ReferrerDeviceTimestamp string `bson:"refr_dvce_timestamp,omitempty"`
 
 	// Contexts
-	DerivedContexts string `db:"derived_contexts"`
+	DerivedContexts string `bson:"derived_contexts,omitempty"`
 
 	// SessionID
-	DomainSessionID string `db:"domain_sessionid"`
+	DomainSessionID string `bson:"domain_sessionid,omitempty"`
 
 	// Derived Timestamp
-	DerivedTimestamp string `db:"derived_tstamp"`
+	DerivedTimestamp string `bson:"derived_tstamp,omitempty"`
 
 	// JSON ONLY PROPERTIES ON INCOMING EVENT
 

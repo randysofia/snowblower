@@ -68,14 +68,12 @@ func processSNSMessage(message *sqs.Message) {
 		if err := json.Unmarshal([]byte(snsMessage.Message), &payload); err != nil {
 			fmt.Printf("COLLECTOR PAYLOAD UNMARSHALL ERROR %s\n", err)
 		} else {
-			processCollectorPayload(payload)
 			// schedule for deletion
 			_, delerr := queue.service.DeleteMessage(deleteParams)
 			if delerr != nil {
-
-				fmt.Println(err.Error())
-
+				fmt.Println(delerr.Error())
 			}
+			processCollectorPayload(payload)
 		}
 	}
 }
@@ -103,7 +101,7 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 			return
 		}
 		b, _ = json.Marshal(ue)
-		e.UnstructuredEvent = string(b)
+		e.TmpUnstructuredEvent = string(b)
 	}
 	b, _ = base64x.URLEncoding.DecodeString(e.ContextsEncoded)
 	co := Iglu{}
@@ -113,13 +111,15 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 			return
 		}
 		b, _ = json.Marshal(co)
-		e.Contexts = string(b)
+		e.TmpContexts = string(b)
 	}
 	// pick up details from colletor payload
 	e.UserIPAddress = cp.IPAddress
-	e.ETLTimestamp = strconv.Itoa(int(time.Now().UnixNano() / 1000000))
+	e.ETLTimestamp = time.Now()
 	e.ETLVersion = SBVersion
-	e.CollectorTimestamp = strconv.Itoa(int(cp.Timestamp))
+	e.CollectorTimestamp = time.Unix(cp.Timestamp, 0)
+	dtm, _ := strconv.ParseInt(e.TmpDeviceTimestamp, 10, 64)
+	e.DeviceTimestamp = time.Unix(dtm/1000, 0)
 	e.CollectorVersion = cp.Collector
 	e.UserAgent = cp.UserAgent
 	// cp.RefererURI
@@ -130,7 +130,8 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 
 	e.enrich()
 
-	o, _ := json.MarshalIndent(e, "", " ")
-	fmt.Printf("JSON: %s", o)
+	//o, _ := json.MarshalIndent(e, "", " ")
+	//fmt.Printf("JSON: %s", o)
+	e.mongosave()
 
 }
