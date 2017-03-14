@@ -94,24 +94,19 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 
 	b, _ := base64x.URLEncoding.DecodeString(e.UnstructuredEventEncoded)
 
-	ue := Iglu{}
 	if len(e.UnstructuredEventEncoded) > 0 {
-		if err := json.Unmarshal(b, &ue); err != nil {
+		if err := json.Unmarshal(b, &e.UnstructuredEvent); err != nil {
 			fmt.Printf("UE UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
-		b, _ = json.Marshal(ue)
-		e.TmpUnstructuredEvent = string(b)
+
 	}
 	b, _ = base64x.URLEncoding.DecodeString(e.ContextsEncoded)
-	co := Iglu{}
 	if len(e.ContextsEncoded) > 0 {
-		if err := json.Unmarshal(b, &co); err != nil {
+		if err := json.Unmarshal(b, &e.Contexts); err != nil {
 			fmt.Printf("CO UNMARSHALL ERROR %s\n%s\n", err, string(b))
 			return
 		}
-		b, _ = json.Marshal(co)
-		e.TmpContexts = string(b)
 	}
 	// pick up details from colletor payload
 	e.UserIPAddress = cp.IPAddress

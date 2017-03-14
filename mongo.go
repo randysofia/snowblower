@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
+	"os"
 
 	"gopkg.in/mgo.v2"
 )
 
 func (e *Event) mongosave() {
-	session, err := mgo.Dial("")
+	session, err := mgo.Dial(os.Getenv("MONGO_URI"))
 
 	if err != nil {
 		panic(err)
@@ -18,11 +18,6 @@ func (e *Event) mongosave() {
 	c := session.DB("luminous-analytics").C("snowplow")
 	//	e.ID = bson.NewObjectId()
 
-	var x, y map[string]interface{}
-	json.Unmarshal([]byte(e.TmpContexts), &x)
-	e.Contexts = x
-	json.Unmarshal([]byte(e.TmpUnstructuredEvent), &y)
-	e.UnstructuredEvent = y
 	err = c.Insert(e)
 	if err != nil {
 		panic(err)

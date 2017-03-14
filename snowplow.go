@@ -8,12 +8,6 @@ const CollectorPayloadSchema = "iglu:com.snowplowanalytics.snowplow/CollectorPay
 // SBVersion Version of collector / enricher
 const SBVersion = "Snowblower/0.0.1"
 
-// Iglu ...
-type Iglu struct {
-	Schema string      `json:"schema"`
-	Data   interface{} `json:"data"`
-}
-
 // CollectorPayload defines the structure of data posted from Snowplow collectors
 type CollectorPayload struct {
 	Schema        string   `json:"schema"`
@@ -121,8 +115,7 @@ type Event struct {
 	MarketingCampaign string `bson:"mkt_campaign,omitempty"`
 
 	// Custom Contexts
-	Contexts        map[string]interface{} `json:"-" bson:"contexts,omitempty"`
-	TmpContexts     string                 `json:"co,omitempty" bson:"-"`
+	Contexts        map[string]interface{} `json:"co,string,omitempty" bson:"contexts,omitempty"`
 	ContextsEncoded string                 `json:"cx,omitempty" bson:"contexts_enc,omitempty"`
 
 	// Custom Structured Event
@@ -133,8 +126,7 @@ type Event struct {
 	StructuredEventValue    string `json:"se_va,omitempty" bson:"se_value,omitempty"`
 
 	// Unstructured Event
-	UnstructuredEvent    map[string]interface{} `json:"-" bson:"unstruct_event,omitempty"`
-	TmpUnstructuredEvent string                 `json:"ue_pr,omitempty" bson:"-"`
+	UnstructuredEvent map[string]interface{} `json:"ue_pr,string,omitempty" bson:"unstruct_event,omitempty"`
 
 	UnstructuredEventEncoded string `json:"ue_px,omitempty,omitempty" bson:"unstruct_event_enc,omitempty"`
 
