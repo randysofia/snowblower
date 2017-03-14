@@ -15,7 +15,7 @@ func (e *Event) mongosave() {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 
-	c := session.DB("luminous-analytics").C("snowplow")
+	c := session.DB(os.Getenv("MONGO_DB")).C(os.Getenv("MONGO_COLLECTION"))
 	//	e.ID = bson.NewObjectId()
 
 	err = c.Insert(e)

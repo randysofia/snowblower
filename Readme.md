@@ -36,6 +36,9 @@ The following environment variables configure the operation of Snowblower when r
 - `SNS_TOPIC` Must contain the ARN of the SNS topic to send events to. **REQUIRED**
 - `PORT` Optionally sets the port that the server listens to. Defaults to 8080.
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_DEFAULT_REGION` Amazon Web Services credentials / config. If not set, Snowblower will attempt to use IAM Roles.
+- `MONGO_URI` The mongo connection string for the DB.
+- `MONGO_DB` The mongo DB to use.
+- `MONGO_COLLECTION` The mongo collection to save events to.
 - `COOKIE_DOMAIN` if not set, a domain won't be set on the session cookie
 
 ## Installation
