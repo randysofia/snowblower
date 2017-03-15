@@ -106,3 +106,8 @@ func (e *Event) geoenrich() {
 	e.GeoLatitude = float32(record.Location.Latitude)
 	e.GeoLongitude = float32(record.Location.Longitude)
 }
+
+// Validate this event, returning false should prevent saving
+func (e *Event) validate() bool {
+	return true
+}

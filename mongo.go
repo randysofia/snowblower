@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/mgo.v2"
@@ -24,5 +25,5 @@ func (e *Event) mongosave() {
 	} else {
 
 	}
-
+	fmt.Println("saved")
 }

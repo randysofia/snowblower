@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -132,14 +133,56 @@ func orchestratePrecipitation(filename string) {
 	decompressgz(gzfile, csvfile)
 	processCSV(csvfile)
 	os.Remove(csvfile)
+	movetocompleted(filename)
+}
+
+func movetocompleted(filename string) {
+	urldata, _ := url.Parse(config.s3Path)
+
+	svc := s3.New(config.awsSession)
+
+	params := &s3.CopyObjectInput{
+		Bucket:     aws.String(urldata.Host),                                 // Required
+		CopySource: aws.String(urldata.Host + urldata.Path + "/" + filename), // Required
+		Key:        aws.String(urldata.Path + "/completed/" + filename),      // Required
+	}
+	_, err := svc.CopyObject(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		fmt.Println(urldata.Host)
+		fmt.Println(urldata.Host + urldata.Path + "/" + filename)
+		fmt.Println(urldata.Path + "/completed/" + filename)
+		log.Fatal(err.Error())
+		return
+	}
+
+	deletesvc := s3.New(config.awsSession)
+
+	deleteparams := &s3.DeleteObjectInput{
+		Bucket: aws.String(urldata.Host),                  // Required
+		Key:    aws.String(urldata.Path + "/" + filename), // Required
+	}
+	_, delerr := deletesvc.DeleteObject(deleteparams)
+
+	if delerr != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(delerr.Error())
+		return
+	}
+
 }
 
 func startPrecipitate() {
+	urldata, _ := url.Parse(config.s3Path)
+
 	if preclogfile != "" {
 		orchestratePrecipitation(preclogfile)
 	} else {
-		urldata, _ := url.Parse(config.s3Path)
-
+		// Get list of log files
 		svc := s3.New(config.awsSession)
 		params := &s3.ListObjectsInput{
 			Bucket: aws.String(urldata.Host),
