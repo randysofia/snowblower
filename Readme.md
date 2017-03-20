@@ -20,12 +20,26 @@ On the other hand, the two c3.xlarge instances that replaced the Scala cluster h
 
 One advantage to using SNS/SQS instead of Kinesis is that SQS scales transparently without explicit provisioning instruction.
 
+## History
+
+Snowblower originated at [wunderlist/snowblower](https://github.com/wunderlist/snowblower). The commit history seems to indicate that it underwent a one month period of development before the project was entirely abandoned. Its abandonment seems to correlate with the period of time Wunderlist had been acquired by Microsoft.
+
+Spark451 picked it up two years later as a replacement to an existing analytics stack. Much of what was promised in the Readme was never implemented by Wunderlist. It's now in working condition, but is still a work in progress.
+
+## Future
+
+- We'd like to see elements of the enrichment process moved to a javascript interpreter so that business logic could be incorporated without editing core.
+
+- We'd like to make the storage configurable so that a user could choose one or more of many different options as destinations for events.
+
+- Multiple instances of precipitate can not be run in parallel due to a race condition on the log file being processed. This should be moved to a queue based system like the enricher. 
+
 ## Running
 
 Snowblower has three commands:
 
 - `collect` Runs the collector, sending events to SNS or SQS, acting as the second stage in a Snowplow pipeline.
-- `etl` Pulls events from SQS, enriches them, and sends them into storage into Postgres or Redshift, acting as the third stage in a Snowplow pipeline.
+- `etl` Pulls events from SQS, enriches them, and sends them into storage into MongoDB, acting as the third stage in a Snowplow pipeline.
 - `precipitate` Pulls events from Cloudfront logs recorded on S3 and sends them to SNS for future enrichment see: [Setting up the Cloudfront collector](https://github.com/snowplow/snowplow/wiki/Setting-up-the-Cloudfront-collector).
 
 
