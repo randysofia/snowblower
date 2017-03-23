@@ -32,7 +32,7 @@ Spark451 picked it up two years later as a replacement to an existing analytics 
 
 - We'd like to make the storage configurable so that a user could choose one or more of many different options as destinations for events.
 
-- Multiple instances of precipitate can not be run in parallel due to a race condition on the log file being processed. This should be moved to a queue based system like the enricher. 
+- Multiple instances of precipitate can not be run in parallel due to a race condition on the log file being processed. This should be moved to a queue based system like the enricher.
 
 ## Running
 
@@ -47,13 +47,19 @@ Snowblower has three commands:
 
 The following environment variables configure the operation of Snowblower when running the collector:
 
-- `SNS_TOPIC` Must contain the ARN of the SNS topic to send events to. **REQUIRED**
+- `SNS_TOPIC` Must contain the ARN of the SNS topic to send events to. **REQUIRED FOR `collect`**
+- `SQS_URL` Must contain the URL of the SQS endpoint. **REQUIRED FOR `etl`**
+- `S3_PATH` Must contain the URI of the S3 path (ie. s3://bucket/path). **REQUIRED FOR `precipitate`**
 - `PORT` Optionally sets the port that the server listens to. Defaults to 8080.
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_DEFAULT_REGION` Amazon Web Services credentials / config. If not set, Snowblower will attempt to use IAM Roles.
 - `MONGO_URI` The mongo connection string for the DB.
 - `MONGO_DB` The mongo DB to use.
 - `MONGO_COLLECTION` The mongo collection to save events to.
 - `COOKIE_DOMAIN` if not set, a domain won't be set on the session cookie
+
+## Flags
+
+-- `--check` or `-c` Operates in checkmode (or dryrun mode) making no changes to S3, SNS, DB, SQS, etc..
 
 ## Installation
 
