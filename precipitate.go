@@ -133,7 +133,9 @@ func orchestratePrecipitation(filename string) {
 	decompressgz(gzfile, csvfile)
 	processCSV(csvfile)
 	os.Remove(csvfile)
-	movetocompleted(filename)
+	if !checkmode {
+		movetocompleted(filename)
+	}
 }
 
 func movetocompleted(filename string) {
@@ -178,19 +180,20 @@ func movetocompleted(filename string) {
 
 func startPrecipitate() {
 	urldata, _ := url.Parse(config.s3Path)
-
 	if preclogfile != "" {
 		orchestratePrecipitation(preclogfile)
 	} else {
 		// Get list of log files
 		svc := s3.New(config.awsSession)
 		params := &s3.ListObjectsInput{
-			Bucket: aws.String(urldata.Host),
+			Bucket:    aws.String(urldata.Host),
+			Prefix:    aws.String(urldata.Path[1:len(urldata.Path)] + "/"),
+			Delimiter: aws.String("/"),
 		}
 		resp, _ := svc.ListObjects(params)
 		for _, key := range resp.Contents {
+			filedata := strings.Split(*key.Key, "/")
 			if filepath.Ext(*key.Key) == ".gz" {
-				filedata := strings.Split(*key.Key, "/")
 				orchestratePrecipitation(filedata[len(filedata)-1])
 			}
 		}
