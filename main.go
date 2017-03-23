@@ -18,6 +18,7 @@ var config struct {
 }
 
 var preclogfile string
+var checkmode bool
 
 func main() {
 
@@ -67,6 +68,8 @@ func main() {
 		},
 	}
 
+	collectorCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS or SNS. Use for debugging.")
+	precipitateCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS, SNS and will not move S3 logs to completed. Use for debugging.")
 	precipitateCmd.Flags().StringVarP(&preclogfile, "logfile", "l", "", "Single cloudfront log file to process")
 	var rootCmd = &cobra.Command{Use: "snowblower"}
 	rootCmd.AddCommand(collectorCmd)

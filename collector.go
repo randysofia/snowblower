@@ -90,6 +90,10 @@ func (c *collector) servePost(
 	// slightly wasteful, but it’s certainly not a deal breaker right now and
 	// the savings we get from not shipping empty events is huge
 
+	if checkmode == true {
+		fmt.Println("Checkmode POST request: " + string(bodyBytes))
+	}
+
 	trackerPayload := TrackerPayload{}
 	if err := json.Unmarshal(bodyBytes, &trackerPayload); err != nil {
 		fmt.Println(err.Error())
@@ -138,8 +142,11 @@ func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent
 		return err
 	}
 	message := string(messageBytes)
-	//fmt.Println(string(messageBytes))
-	c.publisher.publish(message)
+	if checkmode == true {
+		fmt.Println("Checkmode SNS payload: " + message)
+	} else {
+		c.publisher.publish(message)
+	}
 
 	return nil
 }
@@ -169,8 +176,9 @@ func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
 	}
 
 	jsonrequest, _ := json.MarshalIndent(fixedrequestdata, "", "\t")
-	//fmt.Println(string(jsonrequest))
-
+	if checkmode == true {
+		fmt.Println("Checkmode GET vars: " + string(jsonrequest))
+	}
 	var eventPayload []Event
 	singleEvent := Event{}
 
