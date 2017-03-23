@@ -59,7 +59,7 @@ The following environment variables configure the operation of Snowblower when r
 
 ## Flags
 
--- `--check` or `-c` Operates in checkmode (or dryrun mode) making no changes to S3, SNS, DB, SQS, etc..
+- `--check` or `-c` Operates in checkmode (or dryrun mode) making no changes to S3, SNS, DB, SQS, etc..
 
 ## Installation
 
