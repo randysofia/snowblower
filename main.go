@@ -71,6 +71,7 @@ func main() {
 	collectorCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS or SNS. Use for debugging.")
 	precipitateCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS, SNS and will not move S3 logs to completed. Use for debugging.")
 	precipitateCmd.Flags().StringVarP(&preclogfile, "logfile", "l", "", "Single cloudfront log file to process")
+	etlCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to DB and will not delete SQS items. Use for debugging.")
 	var rootCmd = &cobra.Command{Use: "snowblower"}
 	rootCmd.AddCommand(collectorCmd)
 	rootCmd.AddCommand(etlCmd)

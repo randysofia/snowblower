@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -105,6 +106,14 @@ func (e *Event) geoenrich() {
 	e.GeoTimeZone = record.Location.TimeZone
 	e.GeoLatitude = float32(record.Location.Latitude)
 	e.GeoLongitude = float32(record.Location.Longitude)
+}
+
+func (e *Event) print() {
+	eventBytes, err := json.MarshalIndent(e, "", "\t")
+	if err == nil {
+		fmt.Println(string(eventBytes))
+	}
+
 }
 
 // Validate this event, returning false should prevent saving

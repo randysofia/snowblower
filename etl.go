@@ -68,10 +68,12 @@ func processSNSMessage(message *sqs.Message) {
 		if err := json.Unmarshal([]byte(snsMessage.Message), &payload); err != nil {
 			fmt.Printf("COLLECTOR PAYLOAD UNMARSHALL ERROR %s\n", err)
 		} else {
-			// schedule for deletion
-			_, delerr := queue.service.DeleteMessage(deleteParams)
-			if delerr != nil {
-				fmt.Println(delerr.Error())
+			if !checkmode {
+				// schedule for deletion
+				_, delerr := queue.service.DeleteMessage(deleteParams)
+				if delerr != nil {
+					fmt.Println(delerr.Error())
+				}
 			}
 			processCollectorPayload(payload)
 		}
@@ -125,7 +127,11 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 
 	if e.validate() {
 		e.enrich()
-		e.mongosave()
+		if checkmode == true {
+			e.print()
+		} else {
+			e.mongosave()
+		}
 	}
 
 }
