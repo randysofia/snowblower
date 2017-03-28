@@ -19,6 +19,7 @@ var config struct {
 
 var preclogfile string
 var checkmode bool
+var enrichcheck bool
 
 func main() {
 
@@ -38,8 +39,11 @@ func main() {
 		Use:   "collect",
 		Short: "Run the collector",
 		Run: func(cmd *cobra.Command, args []string) {
-			if config.snsTopic == "" {
+			if config.snsTopic == "" && !checkmode {
 				panic("SNS_TOPIC required")
+			}
+			if enrichcheck && !checkmode {
+				panic("Cannot do an enrichcheck unless checkmode is also set.")
 			}
 			startCollector()
 		},
@@ -49,7 +53,7 @@ func main() {
 		Use:   "etl",
 		Short: "Run the ETL processor",
 		Run: func(cd *cobra.Command, args []string) {
-			if config.sqsURL == "" {
+			if config.sqsURL == "" && !checkmode {
 				panic("SQS_URL required")
 			}
 			// ensure we have database information here
@@ -69,6 +73,7 @@ func main() {
 	}
 
 	collectorCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS or SNS. Use for debugging.")
+	collectorCmd.Flags().BoolVarP(&enrichcheck, "echeck", "e", false, "When checkmode is defined, pass events onto enricher for debugging as well.")
 	precipitateCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS, SNS and will not move S3 logs to completed. Use for debugging.")
 	precipitateCmd.Flags().StringVarP(&preclogfile, "logfile", "l", "", "Single cloudfront log file to process")
 	etlCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to DB and will not delete SQS items. Use for debugging.")

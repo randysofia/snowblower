@@ -144,6 +144,9 @@ func (c *collector) jsonInputToSNS(bodyBytes []byte, IPAddress string, UserAgent
 	message := string(messageBytes)
 	if checkmode == true {
 		fmt.Println("Checkmode SNS payload: " + message)
+		if enrichcheck == true {
+			processCollectorPayload(collectorPayload)
+		}
 	} else {
 		c.publisher.publish(message)
 	}
