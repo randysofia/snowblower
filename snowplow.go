@@ -248,7 +248,7 @@ type Event struct {
 
 	// JSON ONLY PROPERTIES ON INCOMING EVENT
 
-	Namespace  string `json:"tna,omitempty"`
+	//Namespace  string `json:"tna,omitempty"`
 	Timezone   string `json:"tz,omitempty"`
 	Resolution string `json:"res,omitempty"`
 	// Language   string `json:"lang,omitempty"`

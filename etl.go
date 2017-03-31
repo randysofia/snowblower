@@ -118,7 +118,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	dtm, _ := strconv.ParseInt(e.TmpDeviceTimestamp, 10, 64)
 	e.DeviceTimestamp = time.Unix(dtm/1000, 0)
 	e.CollectorVersion = cp.Collector
-	e.UserAgent = cp.UserAgent
+	if e.UserAgent == "" {
+		e.UserAgent = cp.UserAgent
+	}
 	// cp.RefererURI
 	e.PageURLPath = cp.Path
 	e.PageURLQuery = cp.QueryString
