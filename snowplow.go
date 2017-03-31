@@ -53,13 +53,13 @@ type Event struct {
 	TransactionID string `json:"tid,omitempty" bson:"txn_id,omitempty"`
 
 	// Namespaceing and versioning
-	TrackerName      string `bson:"name_tracker,omitempty"`
+	TrackerName      string `json:"tna,omitempty" bson:"name_tracker,omitempty"`
 	TrackerVersion   string `json:"tv,omitempty" bson:"v_tracker"`
 	CollectorVersion string `bson:"v_collector"`
 	ETLVersion       string `bson:"v_etl"`
 
 	// User and visit
-	UserID           string `json:"uid,omitempty" bson:"user_id"`
+	UserID           string `json:"uid,omitempty" bson:"user_id,omitempty"`
 	UserIPAddress    string `json:"ip,omitempty" bson:"user_ipaddress"`
 	UserFingerprint  string `bson:"user_fingerprint,omitempty"`
 	DomainUserID     string `json:"duid,omitempty" bson:"domain_userid"`
