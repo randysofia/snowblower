@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -40,7 +41,7 @@ func (e *Event) urlenrich() {
 
 //uaenrich - user agent enrichment
 func (e *Event) uaenrich() {
-	parser, err := uaparser.New("./regexes.yaml")
+	parser, err := uaparser.New(os.Getenv("UA_REGEX"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -83,7 +84,7 @@ func (e *Event) resenrich() {
 
 //geoenrich Geolocation enrichment
 func (e *Event) geoenrich() {
-	db, err := geoip2.Open("GeoLite2-City.mmdb")
+	db, err := geoip2.Open(os.Getenv("GEO_DB"))
 	if err != nil {
 		log.Fatal(err)
 	}

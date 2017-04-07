@@ -56,6 +56,10 @@ The following environment variables configure the operation of Snowblower when r
 - `MONGO_DB` The mongo DB to use.
 - `MONGO_COLLECTION` The mongo collection to save events to.
 - `COOKIE_DOMAIN` if not set, a domain won't be set on the session cookie
+- `UA_REGEX` Location to Useragent regex
+- `GEO_DB` Location to binary geo DB, see: http://dev.maxmind.com/geoip/geoip2/geolite2/
+
+These settings can also be placed in a .env file. See the envfile as an example.
 
 ## Flags
 

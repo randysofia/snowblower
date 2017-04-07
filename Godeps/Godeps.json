@@ -171,6 +171,16 @@
 			"Rev": "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d"
 		},
 		{
+			"ImportPath": "github.com/joho/godotenv",
+			"Comment": "v1.1-12-g325433c",
+			"Rev": "325433c502d409f3c3dc820098fb0cfe38d98dc7"
+		},
+		{
+			"ImportPath": "github.com/joho/godotenv/autoload",
+			"Comment": "v1.1-12-g325433c",
+			"Rev": "325433c502d409f3c3dc820098fb0cfe38d98dc7"
+		},
+		{
 			"ImportPath": "github.com/oschwald/geoip2-golang",
 			"Comment": "v1.0.0-4-g706a710",
 			"Rev": "706a710ce5129fb81dadba750aa80d53ca7ba2ca"
