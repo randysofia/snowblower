@@ -119,5 +119,9 @@ func (e *Event) print() {
 
 // Validate this event, returning false should prevent saving
 func (e *Event) validate() bool {
+	fmt.Println("Checking unstructured event schema")
+	if igluval("https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0", e.UnstructuredEvent) {
+		fmt.Println("VALID WOOT!")
+	}
 	return true
 }

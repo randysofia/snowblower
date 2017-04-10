@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/cobra"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 var config struct {
@@ -23,6 +24,8 @@ var checkmode bool
 var enrichcheck bool
 
 func main() {
+
+	schemalookup = make(map[string]*gojsonschema.Schema)
 
 	config.collectorPort = os.Getenv("PORT")
 	if config.collectorPort == "" {
