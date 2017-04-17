@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -9,6 +11,7 @@ import (
 var schemalookup map[string]*gojsonschema.Schema
 
 func igluval(iglu string, document interface{}) bool {
+	iglu = strings.Replace(iglu, "iglu:", os.Getenv("IGLU_PATH"), 1)
 	loader := gojsonschema.NewGoLoader(document)
 	schema, err := schemaget(iglu)
 	if err == nil {

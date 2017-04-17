@@ -119,9 +119,31 @@ func (e *Event) print() {
 
 // Validate this event, returning false should prevent saving
 func (e *Event) validate() bool {
+	unstructuredSoftFail := false
+
+	// The following checks the json present in ["data"] against the schema in
+	// ["schema"] for unstructured events. Since the nesting level is finite we
+	// can predict the structure and no reflection is needed.
 	fmt.Println("Checking unstructured event schema")
-	if igluval("https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0", e.UnstructuredEvent) {
-		fmt.Println("VALID WOOT!")
+	if e.UnstructuredEvent["schema"] == nil {
+		unstructuredSoftFail = true
+	}
+	if unstructuredSoftFail && e.UnstructuredEvent["data"] != nil {
+		// now it's a hard fail
+		fmt.Println("Data present but no schema")
+		return false
+	}
+
+	if e.UnstructuredEvent["data"].(map[string]interface{})["schema"] == nil &&
+		e.UnstructuredEvent["data"].(map[string]interface{})["data"] != nil {
+		fmt.Println("Data present but no schema")
+		return false
+	}
+
+	if !igluval(e.UnstructuredEvent["schema"].(string), e.UnstructuredEvent) ||
+		!igluval(e.UnstructuredEvent["data"].(map[string]interface{})["schema"].(string),
+			e.UnstructuredEvent["data"].(map[string]interface{})["data"]) {
+		return false
 	}
 	return true
 }
