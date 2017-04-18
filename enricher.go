@@ -119,7 +119,7 @@ func (e *Event) print() {
 
 // Validate this event, returning false should prevent saving
 func (e *Event) validate() bool {
-	unstructuredSoftFail := false
+	unstructuredSoftFail, contextsSoftFail := false, false
 
 	// The following checks the json present in ["data"] against the schema in
 	// ["schema"] for unstructured events. Since the nesting level is finite we
@@ -130,20 +130,39 @@ func (e *Event) validate() bool {
 	}
 	if unstructuredSoftFail && e.UnstructuredEvent["data"] != nil {
 		// now it's a hard fail
-		fmt.Println("Data present but no schema")
+		fmt.Println("Unstructured data present but no schema")
 		return false
 	}
 
-	if e.UnstructuredEvent["data"].(map[string]interface{})["schema"] == nil &&
-		e.UnstructuredEvent["data"].(map[string]interface{})["data"] != nil {
-		fmt.Println("Data present but no schema")
+	if !unstructuredSoftFail &&
+		(!igluval(e.UnstructuredEvent["schema"].(string), e.UnstructuredEvent["data"]) ||
+			!igluval(e.UnstructuredEvent["data"].(map[string]interface{})["schema"].(string),
+				e.UnstructuredEvent["data"].(map[string]interface{})["data"])) {
 		return false
 	}
 
-	if !igluval(e.UnstructuredEvent["schema"].(string), e.UnstructuredEvent) ||
-		!igluval(e.UnstructuredEvent["data"].(map[string]interface{})["schema"].(string),
-			e.UnstructuredEvent["data"].(map[string]interface{})["data"]) {
+	if e.Contexts["schema"] == nil {
+		contextsSoftFail = true
+	}
+
+	if contextsSoftFail && e.Contexts["data"] != nil {
+		// now it's a hard fail
+		fmt.Println("Contexts data present but no schema")
 		return false
+	}
+
+	if !contextsSoftFail &&
+		!igluval(e.Contexts["schema"].(string), e.Contexts["data"]) {
+		return false
+	}
+
+	if !contextsSoftFail {
+		for i, obj := range e.Contexts["data"].([]map[string]interface{}) {
+			if !igluval(obj["schema"].(string), obj["data"]) {
+				fmt.Printf("Error on context element %d\n", i)
+				return false
+			}
+		}
 	}
 	return true
 }
