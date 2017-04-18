@@ -141,6 +141,8 @@ func (e *Event) validate() bool {
 		return false
 	}
 
+	fmt.Println("Checking contexts schema")
+
 	if e.Contexts["schema"] == nil {
 		contextsSoftFail = true
 	}
@@ -157,8 +159,9 @@ func (e *Event) validate() bool {
 	}
 
 	if !contextsSoftFail {
-		for i, obj := range e.Contexts["data"].([]map[string]interface{}) {
-			if !igluval(obj["schema"].(string), obj["data"]) {
+		for i, obj := range e.Contexts["data"].([]interface{}) {
+			value := obj.(map[string]interface{})
+			if !igluval(value["schema"].(string), value["data"]) {
 				fmt.Printf("Error on context element %d\n", i)
 				return false
 			}
