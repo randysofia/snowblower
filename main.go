@@ -72,6 +72,9 @@ func main() {
 			if config.s3Path == "" {
 				panic("S3_PATH required")
 			}
+			if enrichcheck && !checkmode {
+				panic("Cannot do an enrichcheck unless checkmode is also set.")
+			}
 			startPrecipitate()
 		},
 	}
@@ -79,6 +82,7 @@ func main() {
 	collectorCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS or SNS. Use for debugging.")
 	collectorCmd.Flags().BoolVarP(&enrichcheck, "echeck", "e", false, "When checkmode is defined, pass events onto enricher for debugging as well.")
 	precipitateCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to SQS, SNS and will not move S3 logs to completed. Use for debugging.")
+	precipitateCmd.Flags().BoolVarP(&enrichcheck, "echeck", "e", false, "When checkmode is defined, pass events onto enricher for debugging as well.")
 	precipitateCmd.Flags().StringVarP(&preclogfile, "logfile", "l", "", "Single cloudfront log file to process")
 	etlCmd.Flags().BoolVarP(&checkmode, "check", "c", false, "Checkmode, verbose output; does not write to DB and will not delete SQS items. Use for debugging.")
 	var rootCmd = &cobra.Command{Use: "snowblower"}
