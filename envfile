@@ -9,3 +9,4 @@ MONGO_DB=
 MONGO_COLLECTION=
 UA_REGEX=regexes.yaml
 GEO_DB=GeoLite2-City.mmdb
+IGLU_PATH=https://raw.githubusercontent.com/snowplow/iglu-central/master/schemas/
