@@ -37,6 +37,7 @@ func schemaget(iglu string) (*gojsonschema.Schema, error) {
 		return val, nil
 	}
 
+	fmt.Printf("Fetching %s into iglu cache.\n", iglu)
 	schemaLoader := gojsonschema.NewReferenceLoader(iglu)
 	schemalookup[iglu], err = gojsonschema.NewSchema(schemaLoader)
 	if err != nil {
