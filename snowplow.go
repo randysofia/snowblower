@@ -49,7 +49,7 @@ type Event struct {
 
 	// Event
 	Event         string `json:"e,omitempty" bson:"event"`
-	EventID       string `json:"eid,omitempty" bson:"event_id"`
+	EventID       string `json:"eid,omitempty" bson:"event_id,omitempty"`
 	TransactionID string `json:"tid,omitempty" bson:"txn_id,omitempty"`
 
 	// Namespaceing and versioning
@@ -62,9 +62,9 @@ type Event struct {
 	UserID           string `json:"uid,omitempty" bson:"user_id,omitempty"`
 	UserIPAddress    string `json:"ip,omitempty" bson:"user_ipaddress"`
 	UserFingerprint  string `bson:"user_fingerprint,omitempty"`
-	DomainUserID     string `json:"duid,omitempty" bson:"domain_userid"`
+	DomainUserID     string `json:"duid,omitempty" bson:"domain_userid,omitempty"`
 	DomainSessionIDX int16  `bson:"domain_sessionidx,omitempty"`
-	NetworkUserID    string `json:"tnuid,omitempty" bson:"network_userid"`
+	NetworkUserID    string `json:"tnuid,omitempty" bson:"network_userid,omitempty"`
 
 	// Location
 	GeoCountry    string  `bson:"geo_country,omitempty"`
@@ -82,15 +82,15 @@ type Event struct {
 	IPNetspeed     string `bson:"ip_netspeed,omitempty"`
 
 	// Page
-	PageURL      string `json:"url,omitempty" bson:"page_url"`
+	PageURL      string `json:"url,omitempty" bson:"page_url,omitempty"`
 	PageTitle    string `json:"page,omitempty" bson:"page_title,omitempty"`
 	PageReferrer string `json:"refr,omitempty" bson:"page_referrer,omitempty"`
 
 	// Page URL Components
-	PageURLScheme   string `bson:"page_urlscheme"`
-	PageURLHost     string `bson:"page_urlhost"`
-	PageURLPort     int32  `bson:"page_urlport"`
-	PageURLPath     string `bson:"page_urlpath"`
+	PageURLScheme   string `bson:"page_urlscheme,omitempty"`
+	PageURLHost     string `bson:"page_urlhost,omitempty"`
+	PageURLPort     int32  `bson:"page_urlport,omitempty"`
+	PageURLPath     string `bson:"page_urlpath,omitempty"`
 	PageURLQuery    string `bson:"page_urlquery,omitempty"`
 	PageURLFragment string `bson:"page_urlfragment,omitempty"`
 
@@ -162,12 +162,12 @@ type Event struct {
 	UserAgent string `json:"ua,omitempty" bson:"useragent"`
 
 	// Browser
-	BrName           string `bson:"br_name"`
-	BrFamily         string `bson:"br_family"`
-	BrVersion        string `bson:"br_version"`
+	BrName           string `bson:"br_name,omitempty"`
+	BrFamily         string `bson:"br_family,omitempty"`
+	BrVersion        string `bson:"br_version,omitempty"`
 	BrType           string `bson:"br_type,omitempty"`
 	BrRenderer       string `bson:"br_renderengine,omitempty"`
-	BrLangauge       string `json:"lang,omitempty" bson:"br_lang"`
+	BrLangauge       string `json:"lang,omitempty" bson:"br_lang,omitempty"`
 	BrFeatPDF        bool   `json:"f_pdf,omitempty"  bson:"br_features_pdf,omitempty"`
 	BrFeatFl         bool   `json:"f_fla,omitempty" bson:"br_features_flash,omitempty"`
 	BrFeatJava       bool   `json:"f_java,omitempty" bson:"br_features_java,omitempty"`
@@ -189,22 +189,22 @@ type Event struct {
 	TmpBrFeatGears      bool `json:"string_f_gears,string,omitempty" bson:"-"`
 	TmpBrCookies        bool `json:"string_cookie,string,omitempty" bson:"-"`
 
-	BrFeatSilver bool   `bson:"br_features_silverlight"`
+	BrFeatSilver bool   `bson:"br_features_silverlight,omitempty"`
 	BrColorDepth string `bson:"br_colordepth,omitempty"`
-	BrViewWidth  int32  `bson:"br_viewwidth"`
-	BrViewHeight int32  `bson:"br_viewheight"`
+	BrViewWidth  int32  `bson:"br_viewwidth,omitempty"`
+	BrViewHeight int32  `bson:"br_viewheight,omitempty"`
 
 	// Operating System
-	OSName         string `bson:"os_name"`
-	OSFamily       string `bson:"os_family"`
-	OSManufacturer string `bson:"os_manufacturer"`
-	OSTimeZone     string `bson:"os_timezone,omitempty"`
+	OSName         string `bson:"os_name,omitempty"`
+	OSFamily       string `bson:"os_family,omitempty"`
+	OSManufacturer string `bson:"os_manufacturer,omitempty"`
+	OSTimeZone     string `bson:"os_timezone,omitempty,omitempty"`
 
 	// Device/Hardware
-	DeviceType         string `bson:"dvce_type"`
-	DeviceIsMobile     bool   `bson:"dvce_ismobile"`
-	DeviceScreenWidth  int32  `bson:"dvce_screenwidth"`
-	DeviceScreenHeight int32  `bson:"dvce_screenheight"`
+	DeviceType         string `bson:"dvce_type,omitempty"`
+	DeviceIsMobile     bool   `bson:"dvce_ismobile,omitempty"`
+	DeviceScreenWidth  int32  `bson:"dvce_screenwidth,omitempty"`
+	DeviceScreenHeight int32  `bson:"dvce_screenheight,omitempty"`
 
 	// Document
 	DocCharset string `bson:"doc_charset,omitempty"`
@@ -221,7 +221,7 @@ type Event struct {
 	BaseCurrency            string `bson:"base_currency,omitempty"`
 
 	// Geolocation
-	GeoTimeZone string `bson:"geo_timezone"`
+	GeoTimeZone string `bson:"geo_timezone,omitempty"`
 
 	// Click ID
 	MarketClickID string `bson:"mkt_clickid,omitempty"`
