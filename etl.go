@@ -111,7 +111,9 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 		}
 	}
 	// pick up details from colletor payload
-	e.UserIPAddress = cp.IPAddress
+	if e.UserIPAddress == "" {
+		e.UserIPAddress = cp.IPAddress
+	}
 	e.ETLTimestamp = time.Now()
 	e.ETLVersion = SBVersion
 	e.CollectorTimestamp = time.Unix(cp.Timestamp, 0)
