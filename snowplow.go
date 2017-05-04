@@ -249,9 +249,9 @@ type Event struct {
 	// JSON ONLY PROPERTIES ON INCOMING EVENT
 
 	//Namespace  string `json:"tna,omitempty"`
-	Timezone   string `json:"tz,omitempty"`
-	Resolution string `json:"res,omitempty"`
+	Timezone   string `json:"tz,omitempty" bson:"omitempty"`
+	Resolution string `json:"res,omitempty" bson:"omitempty"`
 	// Language   string `json:"lang,omitempty"`
-	ColorDepth string `json:"cd,omitempty"`
-	Viewport   string `json:"vp,omitempty"`
+	ColorDepth string `json:"cd,omitempty" bson:"omitempty"`
+	Viewport   string `json:"vp,omitempty" bson:"omitempty"`
 }
