@@ -94,7 +94,10 @@ func processCollectorPayload(cp CollectorPayload) {
 
 func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 
-	b, _ := base64x.URLEncoding.DecodeString(e.UnstructuredEventEncoded)
+	b, errue := base64x.URLEncoding.DecodeString(e.UnstructuredEventEncoded)
+	if errue != nil { // Error because it's not url encoded
+		b, _ = base64x.StdEncoding.DecodeString(e.UnstructuredEventEncoded)
+	}
 
 	if len(e.UnstructuredEventEncoded) > 0 {
 		if err := json.Unmarshal(b, &e.UnstructuredEvent); err != nil {
@@ -103,7 +106,10 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 		}
 
 	}
-	b, _ = base64x.URLEncoding.DecodeString(e.ContextsEncoded)
+	b, errco := base64x.URLEncoding.DecodeString(e.ContextsEncoded)
+	if errco != nil { // Error because it's not url encoded
+		b, _ = base64x.StdEncoding.DecodeString(e.ContextsEncoded)
+	}
 	if len(e.ContextsEncoded) > 0 {
 		if err := json.Unmarshal(b, &e.Contexts); err != nil {
 			fmt.Printf("CO UNMARSHALL ERROR %s\n%s\n", err, string(b))
