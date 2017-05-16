@@ -82,10 +82,11 @@ func processSNSMessage(message *sqs.Message) {
 
 func processCollectorPayload(cp CollectorPayload) {
 	tp := TrackerPayload{}
+	var e Event
 	if err := json.Unmarshal([]byte(cp.Body), &tp); err != nil {
 		fmt.Printf("TRACKER PAYLOAD UNMARSHALL ERROR %s\n", err)
 	} else {
-		for _, e := range tp.Data {
+		for _, e = range tp.Data {
 			//dsfmt.Printf("%s, %s", cp.NetworkUserID, e.AppID)
 			processEvent(e, tp, cp)
 		}

@@ -1,5 +1,5 @@
 {
-	"ImportPath": "snowblower",
+	"ImportPath": "github.com/spark451/snowblower",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v79",
 	"Deps": [
@@ -189,6 +189,10 @@
 			"ImportPath": "github.com/oschwald/maxminddb-golang",
 			"Comment": "v1.1.0-2-g697da80",
 			"Rev": "697da8075d2061aa8ed639346443f5d3e8c80b30"
+		},
+		{
+			"ImportPath": "github.com/spark451/snowman/snowplow",
+			"Rev": "3fedd4741ffc252eb14a366018028bad981a2be6"
 		},
 		{
 			"ImportPath": "github.com/spf13/cobra",
