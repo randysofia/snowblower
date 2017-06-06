@@ -192,7 +192,7 @@
 		},
 		{
 			"ImportPath": "github.com/spark451/snowman/snowplow",
-			"Rev": "3fedd4741ffc252eb14a366018028bad981a2be6"
+			"Rev": "375da087f96c49f19da58f83b6e4827cb161958e"
 		},
 		{
 			"ImportPath": "github.com/spf13/cobra",
