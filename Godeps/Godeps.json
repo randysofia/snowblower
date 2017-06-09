@@ -191,6 +191,10 @@
 			"Rev": "697da8075d2061aa8ed639346443f5d3e8c80b30"
 		},
 		{
+			"ImportPath": "github.com/remeh/sizedwaitgroup",
+			"Rev": "4b44541c93591ee0e73747d6081e61bd8c58b5c7"
+		},
+		{
 			"ImportPath": "github.com/spark451/snowman/snowplow",
 			"Rev": "375da087f96c49f19da58f83b6e4827cb161958e"
 		},
