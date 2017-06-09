@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/duncan/base64x"
+	"github.com/remeh/sizedwaitgroup"
 )
 
 var queue struct {
@@ -47,12 +48,18 @@ func processNextBatch() {
 		fmt.Println("Error:", err.Error())
 	}
 
+	// limit threads to 10
+	swg := sizedwaitgroup.New(10)
+
 	for _, message := range resp.Messages {
-		go processSNSMessage(message)
+		swg.Add()
+		go processSNSMessage(message, &swg)
 	}
+	swg.Wait()
 }
 
-func processSNSMessage(message *sqs.Message) {
+func processSNSMessage(message *sqs.Message, swg *sizedwaitgroup.SizedWaitGroup) {
+	defer swg.Done()
 	//messageID := *message.MessageID
 	// receiptHandle := *message.ReceiptHandle
 	deleteParams := &sqs.DeleteMessageInput{
