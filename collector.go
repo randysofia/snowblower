@@ -247,6 +247,7 @@ func urlValuesToBodyBytes(requestdata map[string][]string) ([]byte, error) {
 func startCollector() {
 
 	healthHandler := &health{}
+	http.Handle("/", healthHandler)
 	http.Handle("/api/health", healthHandler)
 	http.Handle("/health", healthHandler)
 
