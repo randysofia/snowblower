@@ -15,10 +15,14 @@ import (
 )
 
 func (e *Event) enrich() {
-	e.uaenrich()
-	e.resenrich()
-	e.geoenrich()
-	e.urlenrich()
+	if len(e.UserAgent) >= 20 {
+		e.uaenrich()
+		e.resenrich()
+		if isPublicIP(net.ParseIP(e.UserIPAddress)) {
+			e.geoenrich()
+		}
+		e.urlenrich()
+	}
 }
 
 //urlenrich - URL enrichment

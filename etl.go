@@ -143,7 +143,7 @@ func processEvent(e Event, tp TrackerPayload, cp CollectorPayload) {
 	// cp.Headers
 	e.NetworkUserID = cp.NetworkUserID
 
-	if e.validate() {
+	if e.Event != "" && e.AppID != "" && e.validate() {
 		e.enrich()
 		if checkmode == true {
 			e.print()
