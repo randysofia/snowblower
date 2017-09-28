@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	mgo "gopkg.in/mgo.v2"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/joho/godotenv/autoload"
@@ -22,8 +24,18 @@ var config struct {
 var preclogfile string
 var checkmode bool
 var enrichcheck bool
+var dstSession *mgo.Session
 
 func main() {
+
+	var mgoerr error
+	dstSession, mgoerr = mgo.Dial(os.Getenv("MONGO_URI"))
+	dstSession.SetMode(mgo.Monotonic, true)
+	if mgoerr != nil {
+		panic(mgoerr)
+	}
+
+	defer dstSession.Close()
 
 	schemalookup = make(map[string]*gojsonschema.Schema)
 
