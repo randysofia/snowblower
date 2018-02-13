@@ -19,7 +19,7 @@ func (e *Event) enrich() {
 		e.uaenrich()
 		e.resenrich()
 	}
-	if isPublicIP(net.ParseIP(e.UserIPAddress)) {
+	if isPublicIP(net.ParseIP(e.UserIPAddress)) && net.ParseIP(e.UserIPAddress) != nil {
 		e.geoenrich()
 		e.urlenrich()
 	}
