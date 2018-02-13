@@ -15,12 +15,12 @@ import (
 )
 
 func (e *Event) enrich() {
-	if len(e.UserAgent) >= 15 {
+	if len(e.UserAgent) >= 20 { // bad design but temporarily intended to exlude PHP UAs
 		e.uaenrich()
 		e.resenrich()
-		if isPublicIP(net.ParseIP(e.UserIPAddress)) {
-			e.geoenrich()
-		}
+	}
+	if isPublicIP(net.ParseIP(e.UserIPAddress)) {
+		e.geoenrich()
 		e.urlenrich()
 	}
 }
