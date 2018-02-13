@@ -97,7 +97,7 @@ func (e *Event) geoenrich() {
 	ip := net.ParseIP(e.UserIPAddress)
 	record, err := db.City(ip)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, e.UserIPAddress)
 		return
 	}
 	e.GeoCity = record.City.Names["en"]
