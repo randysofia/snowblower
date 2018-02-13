@@ -15,7 +15,7 @@ import (
 )
 
 func (e *Event) enrich() {
-	if len(e.UserAgent) >= 20 {
+	if len(e.UserAgent) >= 15 {
 		e.uaenrich()
 		e.resenrich()
 		if isPublicIP(net.ParseIP(e.UserIPAddress)) {
