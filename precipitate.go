@@ -94,7 +94,7 @@ func processCSV(filename string) error {
 	}
 	csvreader := csv.NewReader(bufio.NewReader(fs))
 	csvreader.Comma = '\t'
-	csvreader.FieldsPerRecord = 24
+	csvreader.FieldsPerRecord = 33
 	for {
 		record, err := csvreader.Read()
 		if err == io.EOF {
