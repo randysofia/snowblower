@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/spark451/snowman/snowplow"
+	"github.com/spark451/snowman/v2/snowplow"
 )
 
 // Event is an alias for snowplow.Event

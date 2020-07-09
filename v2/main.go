@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"os"
 
-	mgo "gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -24,18 +26,17 @@ var config struct {
 var preclogfile string
 var checkmode bool
 var enrichcheck bool
-var dstSession *mgo.Session
+var client *mongo.Client
 
 func main() {
-
-	var mgoerr error
-	dstSession, mgoerr = mgo.Dial(os.Getenv("MONGO_URI"))
-	dstSession.SetMode(mgo.Monotonic, true)
-	if mgoerr != nil {
-		panic(mgoerr)
+	var err error
+	if client, err = mongo.Connect(
+		context.Background(),
+		options.Client().ApplyURI(os.Getenv("MONGO_URI")),
+	); err != nil {
+		panic(err)
 	}
-
-	defer dstSession.Close()
+	defer client.Disconnect(context.Background())
 
 	schemalookup = make(map[string]*gojsonschema.Schema)
 

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"context"
 	"os"
 
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type geo struct {
@@ -13,35 +14,28 @@ type geo struct {
 
 type mongoe struct {
 	Event       `bson:",inline"`
-	MongoUserID bson.ObjectId `bson:"userid_mgo,omitempty"`
-	GeoCoord    geo           `bson:"geo_coord,omitempty"`
+	MongoUserID primitive.ObjectID `bson:"userid_mgo,omitempty"`
+	GeoCoord    geo                `bson:"geo_coord,omitempty"`
 }
 
 func (standarde *Event) mongosave() {
 
 	var e mongoe
 
-	if !bson.IsObjectIdHex(standarde.UserID) {
-		e = mongoe{*standarde, bson.ObjectId(""), geo{0, 0}}
+	if oid, err := primitive.ObjectIDFromHex(standarde.UserID); err == nil {
+		e = mongoe{*standarde, oid, geo{0, 0}}
 	} else {
-		e = mongoe{*standarde, bson.ObjectIdHex(standarde.UserID), geo{0, 0}}
+		e = mongoe{*standarde, primitive.NewObjectID(), geo{0, 0}}
 	}
 	e.GeoCoord.Lat = standarde.GeoLatitude
 	e.GeoCoord.Lng = standarde.GeoLongitude
 	e.GeoLatitude = 0
 	e.GeoLongitude = 0
 
-	session := dstSession.Copy()
-	defer session.Close()
-
-	c := session.DB(os.Getenv("MONGO_DB")).C(os.Getenv("MONGO_COLLECTION"))
-	//	e.ID = bson.NewObjectId()
-
-	err := c.Insert(e)
-	if err != nil {
+	if _, err := client.
+		Database(os.Getenv("MONGO_DB")).
+		Collection(os.Getenv("MONGO_COLLECTION")).
+		InsertOne(context.Background(), e); err != nil {
 		panic(err)
-	} else {
-
 	}
-	//fmt.Println("saved")
 }
