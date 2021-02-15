@@ -27,6 +27,7 @@ Snowblower originated at [wunderlist/snowblower](https://github.com/wunderlist/s
 Spark451 picked it up two years later as a replacement to an existing analytics stack. Much of what was promised in the Readme was never implemented by Wunderlist. It's now in working condition, but is still a work in progress.
 
 ## Future
+- We'd like to add others brokers like Redis so that it can be hosted outsite of the AWS ecosystem
 
 - We'd like to see elements of the enrichment process moved to a javascript interpreter so that business logic could be incorporated without editing core.
 
